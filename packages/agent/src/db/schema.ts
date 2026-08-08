@@ -1,4 +1,14 @@
-import { bigint, date, index, pgTable, text, timestamp, uniqueIndex, uuid, vector } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  date,
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+  vector,
+} from 'drizzle-orm/pg-core';
 
 // gemini-embedding-001 gera 3072 dimensões por padrão; truncado para 768 via
 // `output_dimensionality` na chamada de embedding porque o índice HNSW do pgvector
@@ -21,7 +31,9 @@ export const documentos = pgTable(
     patrimonioLiquido: bigint('patrimonio_liquido', { mode: 'number' }).notNull(),
     caixaOperacional: bigint('caixa_operacional', { mode: 'number' }).notNull(),
     // Ausente no 4º trimestre — a CVM não oferece o comparativo YoY nesse período.
-    receitaMesmoTrimestreAnoAnterior: bigint('receita_mesmo_trimestre_ano_anterior', { mode: 'number' }),
+    receitaMesmoTrimestreAnoAnterior: bigint('receita_mesmo_trimestre_ano_anterior', {
+      mode: 'number',
+    }),
     sourceUrl: text('source_url').notNull(),
     fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull(),
     paragraph: text('paragraph').notNull(),
