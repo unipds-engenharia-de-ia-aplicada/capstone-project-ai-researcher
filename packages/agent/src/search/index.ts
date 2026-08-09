@@ -1,3 +1,4 @@
+import { criarSearchProviderFixture } from '../web-search/fixtures.js';
 import { makeGoogleCustomSearchProvider } from './google-custom-search.js';
 import { makeSerperProvider } from './serper.js';
 import type { SearchProvider } from './types.js';
@@ -7,7 +8,11 @@ export { paraResultadosSerper } from './serper.js';
 export { paraResultadosGoogle } from './google-custom-search.js';
 
 // SEARCH_PROVIDER=serper|google — nunca hardcoded, mesma lógica de MODEL_GRADE/MODEL_ANSWER.
+// DEMO=true tem prioridade sobre SEARCH_PROVIDER: demo reproduzível não depende de Serper/
+// Google estarem no ar nem de chave configurada.
 export function criarSearchProvider(): SearchProvider {
+  if (process.env.DEMO === 'true') return criarSearchProviderFixture();
+
   const provider = process.env.SEARCH_PROVIDER ?? 'serper';
 
   if (provider === 'serper') {

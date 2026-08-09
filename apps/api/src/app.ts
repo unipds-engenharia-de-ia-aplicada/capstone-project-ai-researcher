@@ -2,8 +2,8 @@ import Fastify from 'fastify';
 import {
   buildGraph,
   buscarDocumentosSimilares,
-  buscarPagina,
   criarAnswerLlm,
+  criarBuscarPagina,
   criarEmbeddings,
   criarGradeLlm,
   criarSearchProvider,
@@ -31,7 +31,7 @@ function criarGraphPadrao(): GraphLike {
         buscar: (embedding, k) => buscarDocumentosSimilares(db, embedding, k),
         gradeLlm: criarGradeLlm(),
         searchProvider: criarSearchProvider(),
-        buscarPagina,
+        buscarPagina: criarBuscarPagina(),
         inserirDocumentoWeb: (linha) => inserirDocumentoWeb(db, linha),
         answerLlm: criarAnswerLlm(),
       });
