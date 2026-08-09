@@ -7,11 +7,14 @@ export const retrieveDebugQuerySchema = z.object({
 
 export const retrievedDocumentSchema = z.object({
   id: z.string(),
-  ticker: z.string(),
-  companyName: z.string(),
-  setor: z.string(),
-  period: z.string(),
-  periodEnd: z.string(),
+  // Presentes só em documento do corpus CVM.
+  ticker: z.string().optional(),
+  companyName: z.string().optional(),
+  setor: z.string().optional(),
+  period: z.string().optional(),
+  periodEnd: z.string().optional(),
+  // Presente só em documento vindo da busca web.
+  title: z.string().optional(),
   paragraph: z.string(),
   sourceUrl: z.string(),
   fetchedAt: z.string(),

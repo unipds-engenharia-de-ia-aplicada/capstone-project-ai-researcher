@@ -45,3 +45,22 @@ export const documentos = pgTable(
     index('documentos_embedding_idx').using('hnsw', table.embedding.op('vector_cosine_ops')),
   ],
 );
+
+// Enriquecimento via busca web (D.7) — schema separado de `documentos` porque não tem os
+// indicadores financeiros do corpus CVM, e carrega TTL: o dado envelhece, o do corpus não.
+export const documentosWeb = pgTable(
+  'documentos_web',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    query: text('query').notNull(),
+    title: text('title').notNull(),
+    content: text('content').notNull(),
+    sourceUrl: text('source_url').notNull(),
+    fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }),
+  },
+  (table) => [
+    index('documentos_web_embedding_idx').using('hnsw', table.embedding.op('vector_cosine_ops')),
+  ],
+);

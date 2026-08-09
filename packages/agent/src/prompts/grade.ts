@@ -8,7 +8,11 @@ export function gradePrompt({
   documents: RetrievedDoc[];
 }): string {
   const contexto = documents
-    .map((doc) => `- [${doc.ticker} ${doc.period}] ${doc.paragraph}`)
+    .map((doc) =>
+      doc.ticker
+        ? `- [${doc.ticker} ${doc.period}] ${doc.paragraph}`
+        : `- [web: ${doc.title}] ${doc.paragraph}`,
+    )
     .join('\n');
 
   return `Você avalia se o contexto abaixo é suficiente pra responder a pergunta do usuário.

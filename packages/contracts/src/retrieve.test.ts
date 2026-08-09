@@ -41,4 +41,21 @@ describe('retrieveDebugResponseSchema', () => {
       }),
     ).not.toThrow();
   });
+
+  it('aceita um documento web, sem os campos exclusivos do corpus CVM', () => {
+    expect(() =>
+      retrieveDebugResponseSchema.parse({
+        documents: [
+          {
+            id: '2',
+            title: 'Vale anuncia novo projeto',
+            paragraph: 'A Vale anunciou hoje um novo projeto de expansão em Carajás.',
+            sourceUrl: 'https://noticias.example.com/vale-projeto',
+            fetchedAt: '2026-08-09T00:00:00.000Z',
+            distance: 0.2,
+          },
+        ],
+      }),
+    ).not.toThrow();
+  });
 });

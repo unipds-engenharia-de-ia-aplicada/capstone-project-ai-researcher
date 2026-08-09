@@ -18,11 +18,14 @@
   "dependencies": {
     "@langchain/core": "^1.2.5",
     "@langchain/google-vertexai": "2.2.0",
+    "@langchain/textsplitters": "1.0.1",
     "drizzle-orm": "0.45.2",
+    "html-to-text": "9.0.5",
     "pg": "8.22.0",
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@types/html-to-text": "9.0.4",
     "@types/pg": "8.21.0",
     "drizzle-kit": "0.31.10"
   }
