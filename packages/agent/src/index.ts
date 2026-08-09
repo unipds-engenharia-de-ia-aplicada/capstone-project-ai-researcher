@@ -7,3 +7,5 @@ export { makeRetrieveNode } from './nodes/retrieve.js';
 export type { Buscar, EmbeddingsClient, RetrieveState } from './nodes/retrieve.js';
 export { makeGradeNode } from './nodes/grade.js';
 export type { GradeLlmClient, GradeState } from './nodes/grade.js';
+export { criarSearchProvider } from './search/index.js';
+export type { SearchProvider, SearchResult } from './search/index.js';
