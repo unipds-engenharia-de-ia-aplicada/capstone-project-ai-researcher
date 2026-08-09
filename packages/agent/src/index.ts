@@ -12,3 +12,5 @@ export type { BuscarPagina, InserirDocumentoWeb, WebSearchState } from './nodes/
 export { inserirDocumentoWeb } from './db/upsert-web-document.js';
 export { criarSearchProvider } from './search/index.js';
 export type { SearchProvider, SearchResult } from './search/index.js';
+export { buildGraph, MAX_ITERATIONS, ResearchState } from './graph.js';
+export type { GraphDeps } from './graph.js';

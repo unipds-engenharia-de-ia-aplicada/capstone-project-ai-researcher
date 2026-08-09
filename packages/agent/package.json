@@ -18,6 +18,7 @@
   "dependencies": {
     "@langchain/core": "^1.2.5",
     "@langchain/google-vertexai": "2.2.0",
+    "@langchain/langgraph": "1.4.9",
     "@langchain/textsplitters": "1.0.1",
     "drizzle-orm": "0.45.2",
     "html-to-text": "9.0.5",
