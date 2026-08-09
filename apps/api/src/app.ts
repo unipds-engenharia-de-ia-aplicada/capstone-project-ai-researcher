@@ -16,6 +16,7 @@ import debugRetrieveRoute from './routes/debug-retrieve.js';
 import chatRoute from './routes/chat.js';
 import type { GraphLike } from './routes/chat.js';
 import { checkDatabase as defaultCheckDatabase } from './db.js';
+import { errorHandler } from './error-handler.js';
 
 // Constrói o grafo real só no primeiro POST /chat, não na inicialização do app — assim
 // build() continua seguro em teste, sem exigir SERPER_API_KEY/GOOGLE_CUSTOM_SEARCH_* (a
@@ -56,6 +57,7 @@ export function build({
   graph,
 }: BuildOptions = {}) {
   const app = Fastify({ logger: true });
+  app.setErrorHandler(errorHandler);
 
   app.register(
     async (api) => {

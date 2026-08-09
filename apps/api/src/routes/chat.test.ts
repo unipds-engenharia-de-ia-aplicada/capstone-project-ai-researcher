@@ -3,6 +3,7 @@ import Fastify from 'fastify';
 
 import chatRoute from './chat.js';
 import type { GraphLike } from './chat.js';
+import { errorHandler } from '../error-handler.js';
 
 function fakeGraph(chunks: Record<string, unknown>[]): GraphLike {
   return {
@@ -59,13 +60,15 @@ describe('POST /api/chat', () => {
     expect(eventos[2].data).toEqual({ node: 'answer', answerText: 'A receita foi X.' });
   });
 
-  it('rejeita question ausente com erro de validação', async () => {
+  it('rejeita question ausente com problem+json de erro de validação', async () => {
     const app = Fastify();
+    app.setErrorHandler(errorHandler);
     await app.register(chatRoute, { prefix: '/api', graph: fakeGraph([]) });
 
     const response = await app.inject({ method: 'POST', url: '/api/chat', payload: {} });
 
-    expect(response.statusCode).toBe(500);
+    expect(response.statusCode).toBe(400);
+    expect(response.headers['content-type']).toBe('application/problem+json; charset=utf-8');
   });
 
   it('emite um evento de erro e encerra o stream se o grafo falhar no meio da execução', async () => {

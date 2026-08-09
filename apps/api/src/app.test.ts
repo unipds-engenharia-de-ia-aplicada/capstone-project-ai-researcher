@@ -42,7 +42,7 @@ describe('GET /api/debug/retrieve', () => {
     });
   });
 
-  it('rejeita question ausente com erro de validação', async () => {
+  it('rejeita question ausente com problem+json de erro de validação', async () => {
     const app = build({
       checkDatabase: async () => true,
       debugRoutes: true,
@@ -52,7 +52,12 @@ describe('GET /api/debug/retrieve', () => {
 
     const response = await app.inject({ method: 'GET', url: '/api/debug/retrieve' });
 
-    expect(response.statusCode).toBe(500);
+    expect(response.statusCode).toBe(400);
+    expect(response.headers['content-type']).toBe('application/problem+json; charset=utf-8');
+    expect(response.json()).toMatchObject({
+      title: 'Entrada inválida',
+      status: 400,
+    });
   });
 });
 
