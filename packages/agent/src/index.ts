@@ -10,6 +10,8 @@ export type { GradeLlmClient, GradeState } from './nodes/grade.js';
 export { makeWebSearchNode } from './nodes/web-search.js';
 export type { BuscarPagina, InserirDocumentoWeb, WebSearchState } from './nodes/web-search.js';
 export { inserirDocumentoWeb } from './db/upsert-web-document.js';
+export { makeAnswerNode } from './nodes/answer.js';
+export type { AnswerLlmClient, AnswerState } from './nodes/answer.js';
 export { criarSearchProvider } from './search/index.js';
 export type { SearchProvider, SearchResult } from './search/index.js';
 export { buildGraph, MAX_ITERATIONS, ResearchState } from './graph.js';

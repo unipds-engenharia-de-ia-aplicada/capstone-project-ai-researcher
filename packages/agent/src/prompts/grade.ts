@@ -1,4 +1,5 @@
 import type { RetrievedDoc } from '../db/retrieve-similar.js';
+import { formatarContexto } from './contexto.js';
 
 export function gradePrompt({
   question,
@@ -7,13 +8,7 @@ export function gradePrompt({
   question: string;
   documents: RetrievedDoc[];
 }): string {
-  const contexto = documents
-    .map((doc) =>
-      doc.ticker
-        ? `- [${doc.ticker} ${doc.period}] ${doc.paragraph}`
-        : `- [web: ${doc.title}] ${doc.paragraph}`,
-    )
-    .join('\n');
+  const contexto = formatarContexto(documents);
 
   return `Você avalia se o contexto abaixo é suficiente pra responder a pergunta do usuário.
 

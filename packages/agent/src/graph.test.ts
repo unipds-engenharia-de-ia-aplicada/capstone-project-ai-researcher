@@ -20,6 +20,7 @@ function fakeDeps(overrides: { gradeLlm: ReturnType<typeof fakeGradeLlm> }) {
     },
     buscarPagina: vi.fn().mockResolvedValue(htmlDaPagina),
     inserirDocumentoWeb: vi.fn().mockResolvedValue(undefined),
+    answerLlm: { invoke: vi.fn().mockResolvedValue({ content: 'Resposta de teste.' }) },
   };
 }
 
@@ -41,7 +42,7 @@ describe('buildGraph', () => {
 
     const trace = await coletarNos(app, { question: 'Qual a receita da Vale?' });
 
-    expect(trace).toEqual(['retrieve', 'grade']);
+    expect(trace).toEqual(['retrieve', 'grade', 'answer']);
     expect(deps.searchProvider.search).not.toHaveBeenCalled();
   });
 
@@ -53,7 +54,7 @@ describe('buildGraph', () => {
 
     const trace = await coletarNos(app, { question: 'Por que a receita da Vale caiu?' });
 
-    expect(trace).toEqual(['retrieve', 'grade', 'webSearch', 'retrieve', 'grade']);
+    expect(trace).toEqual(['retrieve', 'grade', 'webSearch', 'retrieve', 'grade', 'answer']);
     expect(deps.searchProvider.search).toHaveBeenCalledTimes(1);
   });
 
@@ -79,5 +80,7 @@ describe('buildGraph', () => {
 
     expect(estadoFinal.iterations).toBe(MAX_ITERATIONS);
     expect(estadoFinal.sufficient).toBe(false);
+    // Guard cortou com contexto insuficiente — o nó answer ainda responde, com o aviso.
+    expect(estadoFinal.answerText).toContain('incompleto');
   });
 });
