@@ -34,7 +34,17 @@ export function makeWebSearchNode(
         : [state.question];
 
     for (const query of queries) {
-      const resultados = (await searchProvider.search(query)).slice(0, RESULTADOS_POR_QUERY);
+      let resultados: Awaited<ReturnType<SearchProvider['search']>>;
+      try {
+        resultados = (await searchProvider.search(query)).slice(0, RESULTADOS_POR_QUERY);
+      } catch {
+        // SearchProvider fora do ar ou circuito aberto (ver resilient-search-provider.ts) —
+        // segue pra próxima query. O grafo volta pro retrieve sem documento novo; se o guard
+        // de iteração cortar o loop, o nó answer avisa que o contexto pode estar incompleto,
+        // em vez da requisição inteira falhar. Degradação graciosa, não silêncio: a falha
+        // deste search() específico não é escondida, só não propaga como erro fatal.
+        continue;
+      }
 
       for (const resultado of resultados) {
         try {

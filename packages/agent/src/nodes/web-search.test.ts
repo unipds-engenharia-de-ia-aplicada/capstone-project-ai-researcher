@@ -82,6 +82,29 @@ describe('makeWebSearchNode', () => {
     expect(inserirDocumentoWeb).toHaveBeenCalledTimes(1);
   });
 
+  it('degrada graciosamente quando o SearchProvider falha — não propaga, segue pra próxima query', async () => {
+    const searchProvider: SearchProvider = {
+      search: vi
+        .fn()
+        .mockRejectedValueOnce(new Error('circuito aberto'))
+        .mockResolvedValueOnce([{ title: 'Resultado', snippet: '', url: 'https://x.example.com' }]),
+    };
+    const embeddings = { embedQuery: vi.fn().mockResolvedValue([0.1]) };
+    const buscarPagina = vi.fn().mockResolvedValue(htmlDaPagina);
+    const inserirDocumentoWeb = vi.fn().mockResolvedValue(undefined);
+
+    const node = makeWebSearchNode(searchProvider, embeddings, buscarPagina, inserirDocumentoWeb);
+
+    const result = await node({
+      question: 'Por que a receita caiu?',
+      missingAspects: ['motivo A', 'motivo B'],
+    });
+
+    expect(result).toEqual({});
+    expect(searchProvider.search).toHaveBeenCalledTimes(2); // as duas queries foram tentadas
+    expect(inserirDocumentoWeb).toHaveBeenCalledTimes(1); // só a segunda query rendeu documento
+  });
+
   it('aplica o ttlDias informado no cálculo de expiração', async () => {
     const searchProvider = fakeSearchProvider(['https://noticias.example.com/vale']);
     const embeddings = { embedQuery: vi.fn().mockResolvedValue([0.1]) };

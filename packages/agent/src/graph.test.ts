@@ -8,15 +8,20 @@ function fakeGradeLlm(result: { sufficient: boolean; missingAspects: string[] })
   return { withStructuredOutput: () => ({ invoke: vi.fn().mockResolvedValue(result) }) };
 }
 
-function fakeDeps(overrides: { gradeLlm: ReturnType<typeof fakeGradeLlm> }) {
+function fakeDeps(overrides: {
+  gradeLlm: ReturnType<typeof fakeGradeLlm>;
+  searchProviderFalha?: boolean;
+}) {
   return {
     embeddings: { embedQuery: vi.fn().mockResolvedValue([0.1, 0.2]) },
     buscar: vi.fn().mockResolvedValue([]),
     gradeLlm: overrides.gradeLlm,
     searchProvider: {
-      search: vi
-        .fn()
-        .mockResolvedValue([{ title: 'Resultado', snippet: '', url: 'https://x.example.com' }]),
+      search: overrides.searchProviderFalha
+        ? vi.fn().mockRejectedValue(new Error('circuito aberto'))
+        : vi
+            .fn()
+            .mockResolvedValue([{ title: 'Resultado', snippet: '', url: 'https://x.example.com' }]),
     },
     buscarPagina: vi.fn().mockResolvedValue(htmlDaPagina),
     inserirDocumentoWeb: vi.fn().mockResolvedValue(undefined),
@@ -82,5 +87,19 @@ describe('buildGraph', () => {
     expect(estadoFinal.sufficient).toBe(false);
     // Guard cortou com contexto insuficiente — o nó answer ainda responde, com o aviso.
     expect(estadoFinal.answerText).toContain('incompleto');
+  });
+
+  it('degradação graciosa: SearchProvider fora do ar não derruba o grafo — chega em answer normalmente', async () => {
+    const deps = fakeDeps({
+      gradeLlm: fakeGradeLlm({ sufficient: false, missingAspects: ['motivo qualitativo'] }),
+      searchProviderFalha: true,
+    });
+    const app = buildGraph(deps);
+
+    const estadoFinal = await app.invoke({ question: 'Por que a receita caiu?' });
+
+    expect(estadoFinal.answerText).toContain('Resposta de teste.');
+    expect(estadoFinal.answerText).toContain('incompleto');
+    expect(deps.inserirDocumentoWeb).not.toHaveBeenCalled();
   });
 });
