@@ -1,6 +1,6 @@
 import { VertexAIEmbeddings } from '@langchain/google-vertexai';
 
-import { EMBEDDING_DIMENSIONS } from '../db/schema.js';
+import { EMBEDDING_DIMENSIONS } from './db/schema.js';
 
 const PROJECT_ID = 'ai-researcher-capstone';
 

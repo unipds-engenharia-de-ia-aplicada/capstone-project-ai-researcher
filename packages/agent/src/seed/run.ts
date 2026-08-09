@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 
 import { db, pool } from '../db/client.js';
 import { documentos } from '../db/schema.js';
-import { criarEmbeddings } from './embeddings.js';
+import { criarEmbeddings } from '../embeddings.js';
 import { emLotes } from './lotes.js';
 import { lerDocumentos } from './read-documentos.js';
 import { paraLinha } from './to-row.js';
