@@ -2,13 +2,9 @@ import Fastify from 'fastify';
 import {
   buildGraph,
   buscarDocumentosSimilares,
-  criarAnswerLlm,
-  criarBuscarPagina,
   criarEmbeddings,
-  criarGradeLlm,
-  criarSearchProvider,
+  criarGraphDepsPadrao,
   db,
-  inserirDocumentoWeb,
 } from '@hero/agent';
 import type { Buscar, EmbeddingsClient } from '@hero/agent';
 import healthRoute from './routes/health.js';
@@ -27,15 +23,7 @@ function criarGraphPadrao(): GraphLike {
 
   return {
     async stream(input) {
-      grafoReal ??= buildGraph({
-        embeddings: criarEmbeddings(),
-        buscar: (embedding, k) => buscarDocumentosSimilares(db, embedding, k),
-        gradeLlm: criarGradeLlm(),
-        searchProvider: criarSearchProvider(),
-        buscarPagina: criarBuscarPagina(),
-        inserirDocumentoWeb: (linha) => inserirDocumentoWeb(db, linha),
-        answerLlm: criarAnswerLlm(),
-      });
+      grafoReal ??= buildGraph(criarGraphDepsPadrao());
       return grafoReal.stream(input);
     },
   };
