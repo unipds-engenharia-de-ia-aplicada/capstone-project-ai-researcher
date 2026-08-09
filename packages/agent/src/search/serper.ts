@@ -13,6 +13,8 @@ export function paraResultadosSerper(resposta: SerperResponse): SearchResult[] {
   }));
 }
 
+const TIMEOUT_MS = 10_000;
+
 export function makeSerperProvider(apiKey: string): SearchProvider {
   return {
     async search(query: string): Promise<SearchResult[]> {
@@ -23,6 +25,7 @@ export function makeSerperProvider(apiKey: string): SearchProvider {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ q: query }),
+        signal: AbortSignal.timeout(TIMEOUT_MS),
       });
 
       if (!response.ok) {

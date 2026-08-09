@@ -12,8 +12,8 @@ export type { BuscarPagina, InserirDocumentoWeb, WebSearchState } from './nodes/
 export { inserirDocumentoWeb } from './db/upsert-web-document.js';
 export { makeAnswerNode } from './nodes/answer.js';
 export type { AnswerLlmClient, AnswerState } from './nodes/answer.js';
-export { criarSearchProvider } from './search/index.js';
-export type { SearchProvider, SearchResult } from './search/index.js';
+export { CircuitoAbertoError, comResiliencia, criarSearchProvider } from './search/index.js';
+export type { OpcoesResiliencia, SearchProvider, SearchResult } from './search/index.js';
 export { buscarPagina } from './web-search/extract.js';
 export { criarBuscarPagina, criarSearchProviderFixture } from './web-search/fixtures.js';
 export { criarGradeLlm, criarAnswerLlm } from './llm.js';

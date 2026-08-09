@@ -14,6 +14,8 @@ export function paraResultadosGoogle(resposta: GoogleCustomSearchResponse): Sear
   }));
 }
 
+const TIMEOUT_MS = 10_000;
+
 export function makeGoogleCustomSearchProvider(apiKey: string, cx: string): SearchProvider {
   return {
     async search(query: string): Promise<SearchResult[]> {
@@ -22,7 +24,7 @@ export function makeGoogleCustomSearchProvider(apiKey: string, cx: string): Sear
       url.searchParams.set('cx', cx);
       url.searchParams.set('q', query);
 
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
 
       if (!response.ok) {
         throw new Error(`Google Custom Search respondeu ${response.status} pra "${query}"`);
