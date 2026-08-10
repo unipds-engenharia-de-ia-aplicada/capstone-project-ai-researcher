@@ -34,6 +34,8 @@ Bloco E (qualidade, resiliência e MCP) está fechado, com uma ressalva document
 
 `evals/runner` ainda não existe — não está atribuído a nenhum bloco na quebra de tarefas atual (`docs/hero-project-tarefas.md`), só é mencionado na seção de Estrutura deste arquivo como parte do estado-alvo.
 
+Bloco F (frontend) está em andamento: F.1 e F.2 prontos. O protótipo do F.1 foi feito no **Claude Design** (`claude.ai/design`), não no Google Stitch originalmente previsto no plano — trocado por decisão do dono do projeto, já refletido em `docs/hero-project-plano.md` e `docs/hero-project-tarefas.md`. O export está versionado em `docs/design/prototype/`: `ai-researcher-chat.dc.html` é a versão canônica (paleta própria extraída da página da UNIPDS — fundo quase-preto, accent ciano, único botão em lima), `ai-researcher-chat-nocturne.dc.html` é uma variante alternativa com a skin de um design system genérico que existia no mesmo projeto do Claude Design, mantida só como referência. Os arquivos `.dc.html` são o formato de export da ferramenta — dependem de um runtime (`support.js` + `window.React` injetado pelo preview) que só existe dentro do Claude Design, não abrem como HTML estático fora dela. F.2 (skill `frontend-design`, em `.claude/skills/`) traduz os tokens e os padrões de componente do protótipo canônico em regras — inclui a decisão de domínio de nunca usar verde/vermelho em dado financeiro ou estado do pipeline, pra não sugerir compra/venda.
+
 O restante deste arquivo — Stack, Estrutura, Comandos — descreve o **estado-alvo** completo do projeto, não necessariamente o estado atual em todo detalhe.
 
 **Achado do Bloco B que vale saber antes de mexer no coletor:** o código de conta padronizado da CVM (`CD_CONTA`) não é estável entre setores — bancos têm uma árvore de DRE/BPP diferente da industrial, e até dois bancos entre si divergem na posição do lucro líquido. `packages/corpus/src/collect/select-quarters.ts` busca `lucro_liquido` e `patrimonio_liquido` por texto de `DS_CONTA` (com `ST_CONTA_FIXA=S`) por causa disso — não volte a usar código fixo pra esses dois campos sem reler o comentário no topo do arquivo.
@@ -205,6 +207,7 @@ npx skills add https://github.com/angular/skills
 - `fastify-route` — validação, problem+json, SSE.
 - `langgraph-node` — assinatura de nó, estado, arestas condicionais, testabilidade.
 - `angular-component` — store, consumo de SSE, painel do grafo, disclaimer.
+- `frontend-design` — tokens de cor/tipografia/forma e fidelidade ao protótipo do F.1.
 
 Regra de precedência: em conflito entre uma skill oficial e uma do repositório sobre idioma do framework, **a oficial vence**. Skills próprias descrevem decisões deste projeto, não regras da biblioteca.
 
