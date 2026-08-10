@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { chatRequestSchema, chatStreamEventSchema } from '@hero/contracts';
+import { verificarOrcamento } from '@hero/agent';
 
 import { paraEventoSse } from './chat-event.js';
 
@@ -17,6 +18,10 @@ export interface ChatRouteOptions {
 const chatRoute: FastifyPluginAsync<ChatRouteOptions> = async (app, { graph }) => {
   app.post('/chat', async (request, reply) => {
     const { question } = chatRequestSchema.parse(request.body);
+    // Checado antes do writeHead: se lançar, ainda dá pra responder com um status HTTP normal
+    // (429 via error-handler), não um evento SSE de erro — depois do writeHead a resposta já
+    // é 200, sem volta.
+    verificarOrcamento();
 
     // `no-transform` é obrigatório: sem ele o streaming é bufferizado no Cloud Run e a
     // resposta chega de uma vez, não token a token / nó a nó.

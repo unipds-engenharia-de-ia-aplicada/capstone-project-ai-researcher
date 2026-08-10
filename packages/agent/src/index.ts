@@ -22,3 +22,8 @@ export type { GraphDeps } from './graph.js';
 export { criarGraphDepsPadrao } from './graph-deps.js';
 export { registrarLangfuseTracing, criarLangfuseCallbacks } from './observability/langfuse.js';
 export { registry as metricsRegistry, criarMetricsCallback } from './observability/metrics.js';
+export {
+  OrcamentoDiarioExcedidoError,
+  tokensConsumidosHoje,
+  verificarOrcamento,
+} from './observability/budget.js';

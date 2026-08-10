@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { CircuitoAbertoError } from '@hero/agent';
+import { CircuitoAbertoError, OrcamentoDiarioExcedidoError } from '@hero/agent';
 
 import { paraProblema } from './error-handler.js';
 
@@ -26,6 +26,13 @@ describe('paraProblema', () => {
 
     expect(problema.status).toBe(503);
     expect(problema.title).toBe('Busca temporariamente indisponível');
+  });
+
+  it('mapeia OrcamentoDiarioExcedidoError pra 429', () => {
+    const problema = paraProblema(new OrcamentoDiarioExcedidoError(1_000_000));
+
+    expect(problema.status).toBe(429);
+    expect(problema.title).toBe('Orçamento diário de tokens excedido');
   });
 
   it('mapeia qualquer outro erro pra 500, sem vazar detalhe interno', () => {

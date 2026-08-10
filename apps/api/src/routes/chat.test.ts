@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import Fastify from 'fastify';
 
 import chatRoute from './chat.js';
@@ -30,7 +30,28 @@ function parseSse(payload: string): { event?: string; data: unknown }[] {
     });
 }
 
+afterEach(() => {
+  delete process.env.TOKEN_BUDGET_DIARIO;
+});
+
 describe('POST /api/chat', () => {
+  it('rejeita com problem+json 429 quando o orçamento diário de tokens estourou', async () => {
+    process.env.TOKEN_BUDGET_DIARIO = '0';
+
+    const app = Fastify();
+    app.setErrorHandler(errorHandler);
+    await app.register(chatRoute, { prefix: '/api', graph: fakeGraph([]) });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/chat',
+      payload: { question: 'x' },
+    });
+
+    expect(response.statusCode).toBe(429);
+    expect(response.headers['content-type']).toBe('application/problem+json; charset=utf-8');
+  });
+
   it('transmite um evento SSE por nó do grafo, na ordem em que ele roda', async () => {
     const app = Fastify();
     await app.register(chatRoute, {

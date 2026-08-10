@@ -1,7 +1,9 @@
 import { ZodError } from 'zod';
 import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
-import { CircuitoAbertoError } from '@hero/agent';
+import { CircuitoAbertoError, OrcamentoDiarioExcedidoError } from '@hero/agent';
 import type { ProblemDetails } from '@hero/contracts';
+
+import { LimiteDeRequisicoesExcedidoError } from './rate-limit.js';
 
 const BASE_URL = 'https://ai-researcher.dev/problems';
 
@@ -20,6 +22,24 @@ export function paraProblema(error: Error): ProblemDetails {
       type: `${BASE_URL}/busca-indisponivel`,
       title: 'Busca temporariamente indisponível',
       status: 503,
+      detail: error.message,
+    };
+  }
+
+  if (error instanceof OrcamentoDiarioExcedidoError) {
+    return {
+      type: `${BASE_URL}/orcamento-excedido`,
+      title: 'Orçamento diário de tokens excedido',
+      status: 429,
+      detail: error.message,
+    };
+  }
+
+  if (error instanceof LimiteDeRequisicoesExcedidoError) {
+    return {
+      type: `${BASE_URL}/limite-de-requisicoes`,
+      title: 'Limite de requisições excedido',
+      status: 429,
       detail: error.message,
     };
   }

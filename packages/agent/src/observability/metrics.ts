@@ -1,5 +1,6 @@
 import { Counter, Registry } from 'prom-client';
 
+import { registrarConsumoDeTokens } from './budget.js';
 import { custoUsd, type UsoTokens } from './pricing.js';
 
 // Registry próprio, não o default global de prom-client — evita coletar métricas de
@@ -75,6 +76,7 @@ export function criarMetricsCallback() {
       tokensTotal.inc({ node: info.node, model: info.model, kind: 'input' }, uso.input_tokens);
       tokensTotal.inc({ node: info.node, model: info.model, kind: 'output' }, uso.output_tokens);
       custoTotalUsd.inc({ node: info.node, model: info.model }, custoUsd(info.model, uso));
+      registrarConsumoDeTokens(uso.input_tokens + uso.output_tokens);
     },
     // Sem isso, uma chamada que falha (erro da Vertex AI, quota, etc.) nunca dispara
     // handleLLMEnd e a entrada de infoPorRun vaza pela vida inteira do processo.
