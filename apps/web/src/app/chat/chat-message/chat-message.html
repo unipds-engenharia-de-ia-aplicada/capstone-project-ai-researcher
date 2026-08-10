@@ -1,0 +1,26 @@
+@if (isUser()) {
+<div class="bubble bubble--user">{{ text() }}</div>
+} @else {
+<div class="bubble bubble--assistant">
+  <div class="bubble__header">
+    <span class="bubble__avatar" aria-hidden="true">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M4 5h16v11H9l-5 4z"></path>
+      </svg>
+    </span>
+    <span class="bubble__label">AI RESEARCHER</span>
+  </div>
+  <p class="bubble__text">
+    {{ text() }}@if (showCursor()) {<span class="bubble__cursor" aria-hidden="true"></span>}
+  </p>
+</div>
+}
