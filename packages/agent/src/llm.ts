@@ -23,7 +23,13 @@ function criarChatModel(model: string): ChatVertexAI {
 }
 
 // ChatVertexAI já implementa withStructuredOutput().invoke() nativamente — satisfaz
-// GradeLlmClient sem adaptação.
+// GradeLlmClient sem adaptação. Nunca passe { callbacks: [...] } explícito num invoke() aqui
+// dentro: isso substitui o callback manager ambiente que o LangGraph propaga via
+// AsyncLocalStorage (é o que faz o Langfuse e o metrics.ts capturarem a chamada da Vertex AI
+// como filha do nó certo, sem esse arquivo saber nada de tracing) — confirmado comparando um
+// trace real com e sem esse parâmetro: com ele, a chamada de LLM some do Langfuse, sobra só
+// o span do nó. Quem precisa de um callback adicional aqui passa por
+// graph.stream()/graph.invoke({ callbacks }), nunca por aqui.
 export function criarGradeLlm(): GradeLlmClient {
   if (process.env.DEMO === 'true') return criarGradeLlmDemo();
   return criarChatModel(process.env.MODEL_GRADE ?? 'gemini-3.5-flash-lite');
