@@ -95,4 +95,44 @@ describe('Chat', () => {
 
     expect(compiled.querySelectorAll('.bubble--user, .bubble--assistant').length).toBe(0);
   });
+
+  it('disclaimer regulatório fica sempre visível, fora de qualquer modal, inclusive durante o streaming', async () => {
+    const disclaimer =
+      'Este assistente apresenta informações públicas, não recomendação de investimento.';
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: ChatService,
+          useValue: fakeChatService([{ node: 'answer', answerText: 'A receita foi X.' }]),
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(Chat);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    // Visível antes de qualquer pergunta — não é algo que só aparece depois de interagir.
+    const disclaimerEl = compiled.querySelector('.chat__disclaimer');
+    expect(disclaimerEl?.textContent?.trim()).toBe(disclaimer);
+    // Não é modal: não tem overlay/backdrop nem botão de fechar.
+    expect(
+      compiled.querySelector('[class*="modal"], [class*="dialog"], [class*="backdrop"]'),
+    ).toBeFalsy();
+
+    const input = compiled.querySelector('.chat__input') as HTMLInputElement;
+    input.value = 'Qual a receita da Vale?';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    (compiled.querySelector('.chat__send') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    // Ainda visível com o streaming em andamento.
+    expect(compiled.querySelector('.chat__disclaimer')?.textContent?.trim()).toBe(disclaimer);
+
+    await vi.runAllTimersAsync();
+    fixture.detectChanges();
+
+    // E depois que a resposta termina.
+    expect(compiled.querySelector('.chat__disclaimer')?.textContent?.trim()).toBe(disclaimer);
+  });
 });

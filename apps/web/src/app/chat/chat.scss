@@ -19,6 +19,26 @@
   flex-shrink: 0;
 }
 
+.chat__disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 24px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  color: var(--cyan-dim);
+  font-size: 12.5px;
+
+  span {
+    color: var(--text-muted);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
 .chat__brand {
   font-family: var(--font-display);
   font-size: 20px;
