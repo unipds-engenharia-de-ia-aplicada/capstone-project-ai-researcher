@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ChatService } from '../api/chat.service';
+import { parseAnswer } from './citation';
 import { tokenize, type ChatMessage } from './chat-message';
 
 const STREAM_SPEED_MS = 70;
@@ -28,8 +29,8 @@ export class ChatStore {
     const assistantId = this.nextId++;
     this._messages.update((mensagens) => [
       ...mensagens,
-      { id: userId, role: 'user', words: [texto], revealed: 1, done: true },
-      { id: assistantId, role: 'assistant', words: [], revealed: 0, done: false },
+      { id: userId, role: 'user', words: [texto], revealed: 1, done: true, citations: [] },
+      { id: assistantId, role: 'assistant', words: [], revealed: 0, done: false, citations: [] },
     ]);
     this._pending.set(true);
 
@@ -53,8 +54,9 @@ export class ChatStore {
   }
 
   private startReveal(messageId: number, fullText: string): void {
-    const words = tokenize(fullText);
-    this.updateMessage(messageId, { words, revealed: 0, done: words.length === 0 });
+    const { body, citations } = parseAnswer(fullText);
+    const words = tokenize(body);
+    this.updateMessage(messageId, { words, revealed: 0, done: words.length === 0, citations });
     if (words.length === 0) return;
 
     let revealed = 0;
@@ -67,7 +69,7 @@ export class ChatStore {
   }
 
   private finishWithText(messageId: number, text: string): void {
-    this.updateMessage(messageId, { words: [text], revealed: 1, done: true });
+    this.updateMessage(messageId, { words: [text], revealed: 1, done: true, citations: [] });
   }
 
   private updateMessage(messageId: number, changes: Partial<ChatMessage>): void {

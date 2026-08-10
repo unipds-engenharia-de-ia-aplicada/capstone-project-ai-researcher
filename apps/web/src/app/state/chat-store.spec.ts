@@ -67,6 +67,29 @@ describe('ChatStore', () => {
     expect(final.words.join('')).toBe('Foi bom.');
   });
 
+  it('extrai as citações do bloco Fontes: do answerText, e o corpo revelado não inclui esse bloco', async () => {
+    const answerText =
+      'A receita líquida da Vale no 3T25 foi de R$ 56,7 bilhões.\n\n' +
+      'Fontes:\n' +
+      '- VALE (3T25, data-base 2025-09-30): https://dados.cvm.gov.br/exemplo';
+    const store = setup(fakeChatService([{ node: 'answer', answerText }]));
+
+    const promise = store.send('x');
+    await vi.runAllTimersAsync();
+    await promise;
+
+    const final = store.messages().at(-1)!;
+    expect(final.words.join('')).toBe('A receita líquida da Vale no 3T25 foi de R$ 56,7 bilhões.');
+    expect(final.citations).toEqual([
+      {
+        label: 'VALE (3T25)',
+        periodEnd: '2025-09-30',
+        origem: 'Base local (CVM)',
+        sourceUrl: 'https://dados.cvm.gov.br/exemplo',
+      },
+    ]);
+  });
+
   it('marca pending durante o streaming e desliga ao terminar', async () => {
     const store = setup(fakeChatService([{ node: 'answer', answerText: 'ok' }]));
 

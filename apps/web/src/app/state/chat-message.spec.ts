@@ -22,6 +22,7 @@ describe('visibleText', () => {
       words: ['A ', 'receita ', 'foi ', 'X.'],
       revealed: 2,
       done: false,
+      citations: [],
     };
     expect(visibleText(message)).toBe('A receita ');
   });

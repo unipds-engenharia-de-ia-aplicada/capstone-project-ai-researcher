@@ -1,3 +1,5 @@
+import type { Citation } from './citation';
+
 export interface ChatMessage {
   readonly id: number;
   readonly role: 'user' | 'assistant';
@@ -7,6 +9,9 @@ export interface ChatMessage {
   readonly words: string[];
   readonly revealed: number;
   readonly done: boolean;
+  // Extraídas do bloco "Fontes:" no fim do answerText (ver state/citation.ts) — não fazem
+  // parte de words/revealed, aparecem de uma vez quando a mensagem termina, não streamadas.
+  readonly citations: Citation[];
 }
 
 export function visibleText(message: ChatMessage): string {
