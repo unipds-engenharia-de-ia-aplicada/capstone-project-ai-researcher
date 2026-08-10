@@ -340,6 +340,215 @@ async function checarGuardrail(url: string): Promise<CheckResult> {
   }
 }
 
+// LANGFUSE_PUBLIC_KEY/LANGFUSE_SECRET_KEY/LANGFUSE_BASE_URL são locais (~/.zshrc), não vêm do
+// alvo checado — o mesmo espírito de GRAFANA_URL/GRAFANA_CLOUD_DASH abaixo: quem roda o
+// capstone:check precisa ter acesso à conta do Langfuse/Grafana do projeto, não só à URL
+// pública. Sem elas configuradas, reporta indisponível — não finge sucesso nem falha.
+async function checarTracesLangfuse(): Promise<CheckResult> {
+  const publicKey = process.env.LANGFUSE_PUBLIC_KEY;
+  const secretKey = process.env.LANGFUSE_SECRET_KEY;
+  const baseUrl = process.env.LANGFUSE_BASE_URL;
+
+  if (!publicKey || !secretKey || !baseUrl) {
+    return {
+      numero: 6,
+      titulo: 'Traces no Langfuse',
+      ok: false,
+      detalhe: 'LANGFUSE_PUBLIC_KEY/LANGFUSE_SECRET_KEY/LANGFUSE_BASE_URL ausentes no ambiente',
+    };
+  }
+
+  const auth = Buffer.from(`${publicKey}:${secretKey}`).toString('base64');
+  const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+  try {
+    const resposta = await fetch(
+      `${baseUrl.replace(/\/$/, '')}/api/public/traces?fromTimestamp=${desde}&limit=1`,
+      { headers: { Authorization: `Basic ${auth}` } },
+    );
+
+    if (!resposta.ok) {
+      return {
+        numero: 6,
+        titulo: 'Traces no Langfuse',
+        ok: false,
+        detalhe: `API do Langfuse respondeu ${resposta.status}`,
+      };
+    }
+
+    const corpo = (await resposta.json()) as { meta: { totalItems: number } };
+    const ok = corpo.meta.totalItems > 0;
+    return {
+      numero: 6,
+      titulo: 'Traces no Langfuse',
+      ok,
+      detalhe: ok
+        ? `${corpo.meta.totalItems} traces nas últimas 24h`
+        : 'nenhum trace nas últimas 24h',
+    };
+  } catch (error) {
+    return {
+      numero: 6,
+      titulo: 'Traces no Langfuse',
+      ok: false,
+      detalhe: `sem resposta (${(error as Error).message})`,
+    };
+  }
+}
+
+// Rajada pequena de propósito (não load-test.ts, que é o script dedicado do G.5): o suficiente
+// pra estourar o RATE_LIMIT_MAX default (20) sem gerar custo real de LLM maior que o
+// necessário — respostas 429 nunca chegam a invocar o grafo.
+async function checarRajadaEAlerta(url: string): Promise<CheckResult> {
+  const alvo = `${url.replace(/\/$/, '')}/api/chat`;
+  const N = 25;
+
+  let respostas: number[];
+  try {
+    respostas = await Promise.all(
+      Array.from({ length: N }, () =>
+        fetch(alvo, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: 'capstone:check — rajada de teste' }),
+        })
+          .then((r) => r.status)
+          .catch(() => 0),
+      ),
+    );
+  } catch (error) {
+    return {
+      numero: 7,
+      titulo: 'Rate limiting + alerta',
+      ok: false,
+      detalhe: `rajada falhou (${(error as Error).message})`,
+    };
+  }
+
+  if (!respostas.includes(429)) {
+    return {
+      numero: 7,
+      titulo: 'Rate limiting + alerta',
+      ok: false,
+      detalhe: `nenhuma resposta 429 em ${N} requisições — rate limit não disparou`,
+    };
+  }
+
+  const grafanaUrl = process.env.GRAFANA_URL;
+  const grafanaToken = process.env.GRAFANA_CLOUD_DASH;
+  if (!grafanaUrl || !grafanaToken) {
+    return {
+      numero: 7,
+      titulo: 'Rate limiting + alerta',
+      ok: false,
+      detalhe: '429 confirmado, mas GRAFANA_URL/GRAFANA_CLOUD_DASH ausentes pra checar o alerta',
+    };
+  }
+
+  try {
+    const resposta = await fetch(
+      `${grafanaUrl.replace(/\/$/, '')}/api/v1/provisioning/alert-rules`,
+      {
+        headers: { Authorization: `Bearer ${grafanaToken}` },
+      },
+    );
+    const regras = (await resposta.json()) as { title: string }[];
+    const existe = regras.some((r) => r.title.toLowerCase().includes('abuso'));
+    return {
+      numero: 7,
+      titulo: 'Rate limiting + alerta',
+      ok: existe,
+      detalhe: existe
+        ? '429 confirmado na rajada, alerta de abuso configurado no Grafana'
+        : '429 confirmado, mas nenhuma regra de alerta de abuso encontrada no Grafana',
+    };
+  } catch (error) {
+    return {
+      numero: 7,
+      titulo: 'Rate limiting + alerta',
+      ok: false,
+      detalhe: `429 confirmado, mas checar o Grafana falhou (${(error as Error).message})`,
+    };
+  }
+}
+
+interface RevisaoCloudRun {
+  status?: { conditions?: { type: string; status: string }[] };
+}
+
+// gcloud, não a API REST do Cloud Run — mesmo padrão de scripts/rollback.ts, que faz a mesma
+// consulta pra decidir o alvo do rollback. Serviço/região/projeto fixos, como em deploy.yml:
+// este script audita especificamente este projeto, não é um template genérico.
+function checarRollbackDisponivel(): CheckResult {
+  try {
+    const saida = execFileSync(
+      'gcloud',
+      [
+        'run',
+        'revisions',
+        'list',
+        '--service=ai-researcher-api',
+        '--region=us-central1',
+        '--project=ai-researcher-capstone',
+        '--format=json',
+      ],
+      { encoding: 'utf-8' },
+    );
+    const revisoes = JSON.parse(saida) as RevisaoCloudRun[];
+    const prontas = revisoes.filter((r) =>
+      r.status?.conditions?.some((c) => c.type === 'Ready' && c.status === 'True'),
+    );
+    const ok = prontas.length > 1;
+    return {
+      numero: 8,
+      titulo: 'Rollback disponível',
+      ok,
+      detalhe: ok
+        ? `${prontas.length} revisions prontas — rollback tem pra onde reverter`
+        : `só ${prontas.length} revision pronta — sem alvo de rollback ainda`,
+    };
+  } catch (error) {
+    return {
+      numero: 8,
+      titulo: 'Rollback disponível',
+      ok: false,
+      detalhe: `gcloud falhou (${(error as Error).message})`,
+    };
+  }
+}
+
+async function checarMetricasCusto(url: string): Promise<CheckResult> {
+  const alvo = `${url.replace(/\/$/, '')}/api/metrics`;
+  try {
+    const resposta = await fetch(alvo);
+    if (!resposta.ok) {
+      return {
+        numero: 9,
+        titulo: 'Custo por pergunta',
+        ok: false,
+        detalhe: `status ${resposta.status}`,
+      };
+    }
+    const corpo = await resposta.text();
+    const ok = corpo.includes('llm_cost_usd_total');
+    return {
+      numero: 9,
+      titulo: 'Custo por pergunta',
+      ok,
+      detalhe: ok
+        ? '/metrics expõe llm_cost_usd_total'
+        : 'métrica llm_cost_usd_total não encontrada em /metrics',
+    };
+  } catch (error) {
+    return {
+      numero: 9,
+      titulo: 'Custo por pergunta',
+      ok: false,
+      detalhe: `sem resposta (${(error as Error).message})`,
+    };
+  }
+}
+
 function usuarioGithub(): string {
   try {
     return execFileSync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf-8' }).trim();
@@ -369,9 +578,7 @@ function imprimirRelatorio(resultados: CheckResult[]): void {
 
   const aprovados = resultados.filter((r) => r.ok).length;
   console.log('');
-  console.log(
-    `SCORE: ${aprovados}/${resultados.length} (itens 6–9, 11 e 12 chegam nos próximos blocos)`,
-  );
+  console.log(`SCORE: ${aprovados}/${resultados.length} (itens 11 e 12 chegam no Bloco H)`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 }
 
@@ -384,6 +591,10 @@ async function main() {
     checarSegredosProtegidos(),
     checarTestesCi(),
     await checarDegradacaoGraciosa(url),
+    await checarTracesLangfuse(),
+    await checarRajadaEAlerta(url),
+    checarRollbackDisponivel(),
+    await checarMetricasCusto(url),
     await checarGuardrail(url),
   ];
 
