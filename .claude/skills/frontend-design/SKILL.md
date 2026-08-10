@@ -42,7 +42,7 @@ Números monetários: `font-weight: 700` + `font-variant-numeric: tabular-nums`,
 
 Sem escala de tokens dedicada ainda — o protótipo usa valores diretos. Ao portar para Angular, mantenha as proporções observadas em vez de arredondar por conta própria:
 
-- Raio: `6px` em botões/inputs, `8px` em cards/painéis/dialogs, `999px` (pill) em tags e citações, `50%` em avatares e círculos de etapa do pipeline.
+- Raio: `6px` em botões/inputs, `8px` em painéis (citação, banner de fallback), `10px` nas bolhas de mensagem, `999px` (pill) em tags e citações, `50%` em avatares e círculos de etapa do pipeline.
 - Espaçamento: `10–24px` para gaps e padding internos; densidade compacta, não arejada.
 - Bordas de 1px em `--border` delimitam área, nunca `box-shadow` pesado.
 
