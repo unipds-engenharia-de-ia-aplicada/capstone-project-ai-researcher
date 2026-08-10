@@ -75,7 +75,11 @@ jobs:
             DATABASE_URL=database-url:latest
             LANGFUSE_PUBLIC_KEY=langfuse-public-key:latest
             LANGFUSE_SECRET_KEY=langfuse-secret-key:latest
-          env_vars: LANGFUSE_BASE_URL=https://us.cloud.langfuse.com
+            SERPER_API_KEY=serper-api-key:latest
+            OTEL_EXPORTER_OTLP_HEADERS=otel-exporter-otlp-headers:latest
+          env_vars: |-
+            LANGFUSE_BASE_URL=https://us.cloud.langfuse.com
+            OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-sa-east-1.grafana.net/otlp
           flags: --add-cloudsql-instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:ai-researcher-db
 
       - name: Build do Angular
