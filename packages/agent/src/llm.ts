@@ -8,7 +8,12 @@ const PROJECT_ID = 'ai-researcher-capstone';
 function criarChatModel(model: string): ChatVertexAI {
   return new ChatVertexAI({
     model,
-    location: process.env.GOOGLE_CLOUD_LOCATION ?? 'us-central1',
+    // gemini-3.5-flash-lite e gemini-3.6-flash só respondem em "global" nesse projeto —
+    // us-central1 devolve 404 ("model was not found or your project does not have access")
+    // pra esses dois, confirmado testando publishers/google/models direto contra a API.
+    // Embeddings continuam em us-central1 (embeddings.ts) — gemini-embedding-001 funciona
+    // nas duas regiões, então não tem motivo pra mudar o que já está indexado.
+    location: process.env.GOOGLE_CLOUD_LOCATION ?? 'global',
     // Mesmo motivo do embeddings.ts: GOOGLE_API_KEY no ambiente quebra a autenticação da
     // Vertex AI, que só aceita OAuth2/ADC. Ver infra/README.md.
     apiKey: '',

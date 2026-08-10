@@ -7,7 +7,7 @@ Recursos GCP provisionados no Bloco A, fora do controle de versão (não há Ter
 | Recurso | Valor |
 |---|---|
 | Projeto GCP | `ai-researcher-capstone` |
-| Região padrão | `us-central1` (escolhida pela cobertura de modelos Gemini estáveis no Vertex AI; `southamerica-east1` tem cobertura mais restrita) |
+| Região padrão | `us-central1` (Cloud Run, Cloud SQL, Artifact Registry; `southamerica-east1` tem cobertura mais restrita de serviços). **Não** é a região usada nas chamadas de chat à Vertex AI — ver nota abaixo. |
 | Billing account | `<billing-account-do-aluno>` |
 | Artifact Registry | repo Docker `ai-researcher` em `us-central1` |
 | Cloud SQL | instância `ai-researcher-db`, Postgres 16, tier `db-f1-micro` (menor tier suportado em Postgres via edição Enterprise), zonal, sem backup automático, IP público |
@@ -19,6 +19,8 @@ Recursos GCP provisionados no Bloco A, fora do controle de versão (não há Ter
 | Firebase Hosting | inicializado no projeto; placeholder do A.6 substituído pelo `firebase.json` versionado e pelo build real do Angular a partir do C.5 |
 
 Nenhuma credencial foi escrita em arquivo local ou versionado — a senha do `app_user` e a connection string só existem no Secret Manager.
+
+**Achado do F.3 sobre a região da Vertex AI:** `gemini-3.5-flash-lite` e `gemini-3.6-flash` (`MODEL_GRADE`/`MODEL_ANSWER`) devolvem 404 ("model was not found or your project does not have access to it") em `us-central1` — só respondem em `location: "global"`, confirmado testando `publishers/google/models/{modelo}:generateContent` direto contra a API. `gemini-embedding-001` funciona nas duas. `packages/agent/src/llm.ts` já usa `global` como default (`GOOGLE_CLOUD_LOCATION` continua configurável); `embeddings.ts` continua em `us-central1`, sem motivo pra mudar o que já foi indexado. Isso não estava configurado em nenhum ambiente até agora — o `/chat` de produção estava com esse mesmo 404 desde que o Bloco D foi ao ar, só não tinha sido testado ponta a ponta contra o backend real até o F.3.
 
 ## Para o workflow do GitHub Actions (Bloco C.4)
 
