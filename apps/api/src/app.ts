@@ -5,7 +5,9 @@ import {
   criarEmbeddings,
   criarGraphDepsPadrao,
   criarLangfuseCallbacks,
+  criarMetricsCallback,
   db,
+  metricsRegistry,
 } from '@hero/agent';
 import type { Buscar, EmbeddingsClient } from '@hero/agent';
 import { mcpHttpRoute } from '@hero/mcp-server';
@@ -14,6 +16,8 @@ import healthRoute from './routes/health.js';
 import debugRetrieveRoute from './routes/debug-retrieve.js';
 import chatRoute from './routes/chat.js';
 import type { GraphLike as ChatGraphLike } from './routes/chat.js';
+import metricsRoute from './routes/metrics.js';
+import type { MetricsRegistry } from './routes/metrics.js';
 import { checkDatabase as defaultCheckDatabase } from './db.js';
 import { errorHandler } from './error-handler.js';
 
@@ -34,6 +38,7 @@ export interface BuildOptions {
   buscar?: Buscar;
   graph?: ChatGraphLike;
   mcpGraph?: McpGraphLike;
+  metrics?: MetricsRegistry;
 }
 
 export function build({
@@ -43,6 +48,7 @@ export function build({
   buscar,
   graph,
   mcpGraph,
+  metrics,
 }: BuildOptions = {}) {
   const app = Fastify({ logger: true });
   app.setErrorHandler(errorHandler);
@@ -52,12 +58,22 @@ export function build({
   app.register(
     async (api) => {
       api.register(healthRoute, { checkDatabase });
+      // Custo real por nó/modelo (G.2) — o callback de metrics.ts é passado junto com o do
+      // Langfuse (callbacks: [...]) em toda chamada de graph.stream()/invoke() abaixo, nunca
+      // dentro de llm.ts (ver comentário lá — passar callbacks no invoke() de dentro do nó
+      // substitui o callback manager ambiente em vez de somar a ele, e quebra o Langfuse
+      // junto). Prometheus faz o scrape e agrega no tempo; esta rota só expõe o snapshot
+      // atual do processo.
+      api.register(metricsRoute, { registry: metrics ?? metricsRegistry });
       // callbacks: criarLangfuseCallbacks() — G.1. Array vazio quando LANGFUSE_PUBLIC_KEY/
       // LANGFUSE_SECRET_KEY não estão configuradas, então isso nunca precisa de branch
       // condicional aqui; o trace simplesmente não é enviado.
       api.register(chatRoute, {
         graph: graph ?? {
-          stream: (input) => obterGrafo().stream(input, { callbacks: criarLangfuseCallbacks() }),
+          stream: (input) =>
+            obterGrafo().stream(input, {
+              callbacks: [...criarLangfuseCallbacks(), criarMetricsCallback()],
+            }),
         },
       });
 
@@ -67,7 +83,10 @@ export function build({
       // Mesmo grafo do /chat: ver comentário de criarObterGrafo.
       api.register(mcpHttpRoute, {
         graph: mcpGraph ?? {
-          invoke: (input) => obterGrafo().invoke(input, { callbacks: criarLangfuseCallbacks() }),
+          invoke: (input) =>
+            obterGrafo().invoke(input, {
+              callbacks: [...criarLangfuseCallbacks(), criarMetricsCallback()],
+            }),
         },
       });
 
