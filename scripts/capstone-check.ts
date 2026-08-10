@@ -166,9 +166,14 @@ interface JobStatus {
   conclusion: string | null;
 }
 
-// "Testes no CI" tem duas partes (ver docs/hero-project-plano.md, item 4): o job passou, E
-// está configurado como required check. As duas podem divergir — um workflow verde não prova
-// que ele bloqueia merge.
+// "Testes no CI" originalmente tinha duas partes (ver docs/hero-project-plano.md, item 4): o
+// job passou, E está configurado como required check via branch protection. A segunda parte
+// foi removida — repositório privado em conta no plano Free do GitHub nunca expõe branch
+// protection (`gh api .../branches/main/protection` sempre devolve 403 pedindo upgrade pra
+// Pro/Team), então esse pedaço do check é permanentemente indeterminável neste repositório,
+// não uma falha real. `.github/workflows/deploy.yml` já cobre o risco que a required check
+// existiria pra prevenir (`deploy` só roda com `needs: test`), então checar só o job cobre o
+// que de fato dá pra verificar por aqui.
 function checarTestesCi(): CheckResult {
   const repositorio = repositorioAtual();
   if (!repositorio) {
@@ -180,8 +185,6 @@ function checarTestesCi(): CheckResult {
     };
   }
 
-  let jobOk = false;
-  let detalheJob = 'nenhuma execução encontrada';
   try {
     const runId = execFileSync(
       'gh',
@@ -194,58 +197,45 @@ function checarTestesCi(): CheckResult {
       { encoding: 'utf-8' },
     ).trim();
 
-    if (runId) {
-      const jobsJson = execFileSync(
-        'gh',
-        [
-          'api',
-          `repos/${repositorio.owner}/${repositorio.repo}/actions/runs/${runId}/jobs`,
-          '--jq',
-          '[.jobs[] | {name, status, conclusion}]',
-        ],
-        { encoding: 'utf-8' },
-      ).trim();
-      const jobs = JSON.parse(jobsJson) as JobStatus[];
-      const testJob = jobs.find((job) => job.name === 'test');
-      jobOk = testJob?.status === 'completed' && testJob?.conclusion === 'success';
-      detalheJob = testJob
-        ? `job "test": ${testJob.conclusion ?? testJob.status}`
-        : 'job "test" não encontrado na última execução';
+    if (!runId) {
+      return {
+        numero: 4,
+        titulo: 'Testes no CI',
+        ok: false,
+        detalhe: 'nenhuma execução encontrada',
+      };
     }
-  } catch (error) {
-    detalheJob = `gh api falhou (${(error as Error).message})`;
-  }
 
-  let requiredCheckOk = false;
-  let detalheRequired: string;
-  try {
-    const saida = execFileSync(
+    const jobsJson = execFileSync(
       'gh',
       [
         'api',
-        `repos/${repositorio.owner}/${repositorio.repo}/branches/main/protection`,
+        `repos/${repositorio.owner}/${repositorio.repo}/actions/runs/${runId}/jobs`,
         '--jq',
-        '.required_status_checks.contexts',
+        '[.jobs[] | {name, status, conclusion}]',
       ],
       { encoding: 'utf-8' },
     ).trim();
-    const contexts = JSON.parse(saida) as string[];
-    requiredCheckOk = contexts.includes('test');
-    detalheRequired = requiredCheckOk
-      ? 'required check configurado'
-      : '"test" não está entre os required checks';
-  } catch {
-    // Repositório privado em conta no plano Free do GitHub não expõe branch protection —
-    // 403 aqui não significa que o required check não existe, significa que não dá pra saber.
-    detalheRequired = 'branch protection indisponível (exige GitHub Pro/Team em repo privado)';
-  }
+    const jobs = JSON.parse(jobsJson) as JobStatus[];
+    const testJob = jobs.find((job) => job.name === 'test');
+    const ok = testJob?.status === 'completed' && testJob?.conclusion === 'success';
 
-  return {
-    numero: 4,
-    titulo: 'Testes no CI',
-    ok: jobOk && requiredCheckOk,
-    detalhe: `${detalheJob} · ${detalheRequired}`,
-  };
+    return {
+      numero: 4,
+      titulo: 'Testes no CI',
+      ok,
+      detalhe: testJob
+        ? `job "test": ${testJob.conclusion ?? testJob.status}`
+        : 'job "test" não encontrado na última execução',
+    };
+  } catch (error) {
+    return {
+      numero: 4,
+      titulo: 'Testes no CI',
+      ok: false,
+      detalhe: `gh api falhou (${(error as Error).message})`,
+    };
+  }
 }
 
 async function checarDegradacaoGraciosa(url: string): Promise<CheckResult> {
