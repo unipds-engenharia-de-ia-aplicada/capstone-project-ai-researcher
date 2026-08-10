@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 
 # Angular
 .angular/
+
+# macOS
+.DS_Store
