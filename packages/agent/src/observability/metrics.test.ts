@@ -55,11 +55,21 @@ describe('criarMetricsCallback', () => {
   it('limpa o estado pendente em handleLLMError, sem vazar memória', () => {
     const callback = criarMetricsCallback();
 
-    callback.handleChatModelStart(undefined, undefined, 'run-erro', undefined, undefined, undefined, {
-      langgraph_node: 'grade',
-      ls_model_name: 'gemini-3.5-flash-lite',
-    });
+    callback.handleChatModelStart(
+      undefined,
+      undefined,
+      'run-erro',
+      undefined,
+      undefined,
+      undefined,
+      {
+        langgraph_node: 'grade',
+        ls_model_name: 'gemini-3.5-flash-lite',
+      },
+    );
 
-    expect(() => callback.handleLLMError(new Error('Vertex AI indisponível'), 'run-erro')).not.toThrow();
+    expect(() =>
+      callback.handleLLMError(new Error('Vertex AI indisponível'), 'run-erro'),
+    ).not.toThrow();
   });
 });

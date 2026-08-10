@@ -1,4 +1,9 @@
-import { buildGraph, criarGraphDepsPadrao, criarLangfuseCallbacks, criarMetricsCallback } from '@hero/agent';
+import {
+  buildGraph,
+  criarGraphDepsPadrao,
+  criarLangfuseCallbacks,
+  criarMetricsCallback,
+} from '@hero/agent';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 import { makePerguntarTool, perguntarConfig } from './tools/perguntar.js';

@@ -4,7 +4,10 @@ import { custoUsd } from './pricing.js';
 
 describe('custoUsd', () => {
   it('calcula o custo em USD a partir do preço por milhão de tokens do modelo', () => {
-    const custo = custoUsd('gemini-3.5-flash-lite', { input_tokens: 1_000_000, output_tokens: 1_000_000 });
+    const custo = custoUsd('gemini-3.5-flash-lite', {
+      input_tokens: 1_000_000,
+      output_tokens: 1_000_000,
+    });
 
     expect(custo).toBeCloseTo(0.3 + 2.5);
   });

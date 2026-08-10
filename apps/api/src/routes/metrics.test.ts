@@ -18,7 +18,9 @@ describe('GET /api/metrics', () => {
     const app = Fastify();
     await app.register(metricsRoute, {
       prefix: '/api',
-      registry: fakeRegistry('llm_cost_usd_total{node="grade",model="gemini-3.5-flash-lite"} 0.001\n'),
+      registry: fakeRegistry(
+        'llm_cost_usd_total{node="grade",model="gemini-3.5-flash-lite"} 0.001\n',
+      ),
     });
 
     const response = await app.inject({ method: 'GET', url: '/api/metrics' });

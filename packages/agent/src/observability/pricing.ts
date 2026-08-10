@@ -38,5 +38,7 @@ export function custoUsd(model: string, uso: UsoTokens): number {
     return 0;
   }
 
-  return (uso.input_tokens / 1_000_000) * preco.input + (uso.output_tokens / 1_000_000) * preco.output;
+  return (
+    (uso.input_tokens / 1_000_000) * preco.input + (uso.output_tokens / 1_000_000) * preco.output
+  );
 }
