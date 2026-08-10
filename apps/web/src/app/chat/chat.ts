@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { GraphPanelComponent } from '../graph/graph-panel/graph-panel';
 import { ChatStore } from '../state/chat-store';
 import { ChatMessageComponent } from './chat-message/chat-message';
 
 @Component({
   selector: 'app-chat',
-  imports: [ChatMessageComponent],
+  imports: [ChatMessageComponent, GraphPanelComponent],
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

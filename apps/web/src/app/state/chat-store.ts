@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ChatService } from '../api/chat.service';
 import { parseAnswer } from './citation';
+import { GraphStore } from './graph-store';
 import { tokenize, type ChatMessage } from './chat-message';
 
 const STREAM_SPEED_MS = 70;
@@ -10,6 +11,7 @@ const RESPOSTA_INDISPONIVEL =
 @Injectable({ providedIn: 'root' })
 export class ChatStore {
   private readonly chatService = inject(ChatService);
+  private readonly graphStore = inject(GraphStore);
 
   private readonly _messages = signal<ChatMessage[]>([]);
   readonly messages = this._messages.asReadonly();
@@ -33,14 +35,17 @@ export class ChatStore {
       { id: assistantId, role: 'assistant', words: [], revealed: 0, done: false, citations: [] },
     ]);
     this._pending.set(true);
+    this.graphStore.startRun();
 
     try {
       for await (const evento of this.chatService.ask(texto)) {
+        this.graphStore.onEvent(evento);
         if (evento.node === 'answer' && evento.answerText) {
           this.startReveal(assistantId, evento.answerText);
         }
       }
     } catch {
+      this.graphStore.failRun();
       this.finishWithText(assistantId, RESPOSTA_INDISPONIVEL);
     } finally {
       this._pending.set(false);
@@ -51,6 +56,7 @@ export class ChatStore {
     this.clearReveal();
     this._messages.set([]);
     this._pending.set(false);
+    this.graphStore.reset();
   }
 
   private startReveal(messageId: number, fullText: string): void {

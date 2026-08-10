@@ -51,6 +51,20 @@
   }
 }
 
+.chat__body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.chat__column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
 .chat__messages {
   flex: 1;
   overflow-y: auto;

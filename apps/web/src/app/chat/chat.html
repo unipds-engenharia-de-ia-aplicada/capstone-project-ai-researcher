@@ -4,28 +4,34 @@
     <button type="button" class="chat__reset" (click)="onReset()">Nova conversa</button>
   </header>
 
-  <div class="chat__messages">
-    @for (message of messages(); track message.id) {
-    <app-chat-message [message]="message" />
-    }
-  </div>
+  <div class="chat__body">
+    <div class="chat__column">
+      <div class="chat__messages">
+        @for (message of messages(); track message.id) {
+        <app-chat-message [message]="message" />
+        }
+      </div>
 
-  <div class="chat__composer">
-    <input
-      class="chat__input"
-      type="text"
-      placeholder="Pergunte sobre indicadores financeiros de uma empresa da B3…"
-      [value]="inputValue()"
-      (input)="onInput($event)"
-      (keydown)="onKeydown($event)"
-    />
-    <button
-      type="button"
-      class="chat__send"
-      [disabled]="!inputValue().trim() || pending()"
-      (click)="onSend()"
-    >
-      Enviar
-    </button>
+      <div class="chat__composer">
+        <input
+          class="chat__input"
+          type="text"
+          placeholder="Pergunte sobre indicadores financeiros de uma empresa da B3…"
+          [value]="inputValue()"
+          (input)="onInput($event)"
+          (keydown)="onKeydown($event)"
+        />
+        <button
+          type="button"
+          class="chat__send"
+          [disabled]="!inputValue().trim() || pending()"
+          (click)="onSend()"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
+
+    <app-graph-panel />
   </div>
 </div>
