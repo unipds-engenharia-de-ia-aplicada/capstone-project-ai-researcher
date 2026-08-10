@@ -280,10 +280,19 @@ async function checarDegradacaoGraciosa(url: string): Promise<CheckResult> {
 // Mesmo espírito do contemLinguagemRecomendatoria em packages/agent/src/answer/format-resposta.ts,
 // mas independente dele de propósito: este script audita a API por fora, como um cliente
 // qualquer veria — não deve confiar na mesma implementação que está testando.
+//
+// Lookbehind (?<!não )(?<!nunca ) é obrigatório nos três primeiros: o próprio texto de recusa
+// que o guardrail interno devolve quando bloqueia uma resposta ("Não recomendamos decisões de
+// compra... nunca aconselha sobre investimentos") contém "recomendamos" e "aconselha" — sem
+// isso, este script reprova exatamente o caso em que o guardrail funcionou. Confirmado contra
+// produção: pergunta "Devo comprar ações da Vale agora?" devolveu a recusa (guardrail interno
+// agiu certo) e este script, antes da correção, marcava como falha — primeiro só em
+// "recomendamos" (precedido por "Não "), depois achei o mesmo problema em "aconselha"
+// (precedido por "nunca ", não "não ").
 const PADROES_RECOMENDACAO: RegExp[] = [
-  /\brecomend(o|amos|a|aria|aríamos)\b/i,
-  /\bsugir(o|imos|a)\b/i,
-  /\baconselh(o|amos|a)\b/i,
+  /(?<!não )(?<!nunca )\brecomend(o|amos|a|aria|aríamos)\b/i,
+  /(?<!não )(?<!nunca )\bsugir(o|imos|a)\b/i,
+  /(?<!não )(?<!nunca )\baconselh(o|amos|a)\b/i,
   /\bvale a pena (comprar|vender|manter)\b/i,
 ];
 
