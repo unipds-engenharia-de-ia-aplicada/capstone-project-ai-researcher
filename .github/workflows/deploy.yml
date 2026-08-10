@@ -93,7 +93,13 @@ jobs:
 
       - name: Healthcheck da revisão canary
         run: |
-          CANARY_URL="https://canary---$(echo '${{ steps.deploy.outputs.url }}' | sed 's#https://##')"
+          # steps.deploy.outputs.url já vem com a tag quando `tag: canary` é usado no passo
+          # anterior (https://canary---ai-researcher-api-<hash>.<região>.a.run.app) — não
+          # precisa (e não pode) prefixar de novo. Confirmado contra produção real: prefixar
+          # de novo gerava "canary---canary---...", 404, e o healthcheck barrou a promoção
+          # corretamente (a revisão antiga nunca saiu de 100% do tráfego) — só o script que
+          # estava errado, não o mecanismo de segurança.
+          CANARY_URL="${{ steps.deploy.outputs.url }}"
           echo "Checando $CANARY_URL/api/health..."
           curl --fail --retry 8 --retry-delay 5 --retry-connrefused "$CANARY_URL/api/health"
 
