@@ -18,6 +18,7 @@ import chatRoute from './routes/chat.js';
 import type { GraphLike as ChatGraphLike } from './routes/chat.js';
 import metricsRoute from './routes/metrics.js';
 import type { MetricsRegistry } from './routes/metrics.js';
+import { otelHttpMetricsPlugin } from './observability/otel-metrics.js';
 import { checkDatabase as defaultCheckDatabase } from './db.js';
 import { errorHandler } from './error-handler.js';
 
@@ -52,6 +53,12 @@ export function build({
 }: BuildOptions = {}) {
   const app = Fastify({ logger: true });
   app.setErrorHandler(errorHandler);
+  // Latência/status por rota (G.3), incluindo 404 — registrado na raiz do app, não dentro do
+  // prefixo /api: um 404 pra rota inexistente nunca entra no contexto encapsulado de /api
+  // (não bate com nenhuma rota lá dentro), então um hook registrado só dentro daquele prefixo
+  // nunca dispararia pra ele. Sem OTEL_EXPORTER_OTLP_ENDPOINT configurado, é um no-op (ver
+  // otel-metrics.ts), então isso nunca precisa de branch condicional aqui.
+  app.register(otelHttpMetricsPlugin);
 
   const obterGrafo = criarObterGrafo();
 
