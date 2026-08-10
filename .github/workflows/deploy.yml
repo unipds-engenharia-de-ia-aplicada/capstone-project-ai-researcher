@@ -25,6 +25,11 @@ jobs:
       - run: pnpm build
       - run: pnpm test
       - run: pnpm lint
+      # Chromium só — playwright.config.ts (apps/web) só declara o projeto chromium.
+      # DEMO=true (playwright.config.ts, webServer) tira Postgres e Vertex AI da equação:
+      # nenhum secret novo precisa entrar no workflow pra rodar o F.7.
+      - run: pnpm --filter @hero/web exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
 
   deploy:
     needs: test

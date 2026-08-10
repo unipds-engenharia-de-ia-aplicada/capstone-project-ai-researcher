@@ -150,3 +150,8 @@ vite.config.ts.timestamp-*
 
 # macOS
 .DS_Store
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
