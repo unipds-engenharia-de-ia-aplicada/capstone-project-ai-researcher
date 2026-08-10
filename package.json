@@ -18,7 +18,9 @@
     "db:migrate": "pnpm --filter @hero/agent run db:migrate",
     "seed": "pnpm --filter @hero/agent run seed",
     "capstone:check": "tsx scripts/capstone-check.ts",
-    "grafana:dashboard": "tsx scripts/grafana-apply-dashboard.ts"
+    "grafana:dashboard": "tsx scripts/grafana-apply-dashboard.ts",
+    "grafana:alert": "tsx scripts/grafana-apply-alert.ts",
+    "load:test": "tsx scripts/load-test.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
