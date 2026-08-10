@@ -131,7 +131,7 @@ Metade do esforço técnico do projeto.
 
 | # | Tarefa | Pronto quando |
 |---|---|---|
-| F.1 | Protótipo no Google Stitch | Telas exportadas antes de qualquer código |
+| F.1 | Protótipo no Claude Design (`claude.ai/design`) | Telas exportadas antes de qualquer código |
 | F.2 | Skill `frontend-design` com tokens e regras | Gera componente aderente ao protótipo |
 | F.3 | Chat com streaming | Resposta aparece token a token |
 | F.4 | Citações clicáveis com data-base | Abre a fonte; mostra o período do dado |
