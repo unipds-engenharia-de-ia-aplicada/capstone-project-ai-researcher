@@ -20,7 +20,8 @@
     "capstone:check": "tsx scripts/capstone-check.ts",
     "grafana:dashboard": "tsx scripts/grafana-apply-dashboard.ts",
     "grafana:alert": "tsx scripts/grafana-apply-alert.ts",
-    "load:test": "tsx scripts/load-test.ts"
+    "load:test": "tsx scripts/load-test.ts",
+    "rollback": "tsx scripts/rollback.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

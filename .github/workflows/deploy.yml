@@ -64,7 +64,14 @@ jobs:
             .
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/api:${{ github.sha }}
 
-      - name: Deploy no Cloud Run
+      # Canary (G.6): sobe a revisão nova sem tráfego nenhum (no_traffic) e com uma tag fixa
+      # ("canary"), que o Cloud Run expõe numa URL própria — https://canary---<serviço>. A
+      # revisão anterior continua servindo 100% do tráfego real até o healthcheck abaixo
+      # passar. Se a revisão nova estiver quebrada, ela nunca chega a servir usuário nenhum —
+      # não precisa de rollback pra esse caso, só pro caso de algo passar no healthcheck e
+      # falhar depois (aí entra scripts/rollback.ts, pnpm rollback).
+      - name: Deploy no Cloud Run (canary, sem tráfego)
+        id: deploy
         uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: ${{ env.CLOUD_RUN_SERVICE }}
@@ -81,6 +88,19 @@ jobs:
             LANGFUSE_BASE_URL=https://us.cloud.langfuse.com
             OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-sa-east-1.grafana.net/otlp
           flags: --add-cloudsql-instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:ai-researcher-db
+          no_traffic: true
+          tag: canary
+
+      - name: Healthcheck da revisão canary
+        run: |
+          CANARY_URL="https://canary---$(echo '${{ steps.deploy.outputs.url }}' | sed 's#https://##')"
+          echo "Checando $CANARY_URL/api/health..."
+          curl --fail --retry 8 --retry-delay 5 --retry-connrefused "$CANARY_URL/api/health"
+
+      - name: Promove a revisão canary pra 100% do tráfego
+        run: |
+          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE }} \
+            --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --to-latest
 
       - name: Build do Angular
         run: pnpm turbo run build --filter=@hero/web
