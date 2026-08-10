@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { build } from './app.js';
 
 const documentoFake = {
@@ -78,5 +80,39 @@ describe('GET /api/health', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ status: 'degraded', database: 'error' });
+  });
+});
+
+describe('POST /api/mcp (gateway MCP pro Angular)', () => {
+  let app: ReturnType<typeof build> | undefined;
+
+  afterEach(async () => {
+    await app?.close();
+    app = undefined;
+  });
+
+  it('expõe a tool perguntar em /api/mcp — mesma tool do transporte stdio, via HTTP', async () => {
+    const mcpGraph = {
+      invoke: vi.fn().mockResolvedValue({ answerText: 'A receita foi R$ 56,7 bilhões.' }),
+    };
+    app = build({ checkDatabase: async () => true, mcpGraph });
+
+    const enderecoBase = await app.listen({ port: 0, host: '127.0.0.1' });
+    const transport = new StreamableHTTPClientTransport(new URL(`${enderecoBase}/api/mcp`));
+    const cliente = new Client({ name: 'teste', version: '0.0.0' });
+    await cliente.connect(transport);
+
+    const { tools } = await cliente.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['perguntar']);
+
+    const resultado = await cliente.callTool({
+      name: 'perguntar',
+      arguments: { question: 'Qual a receita da Vale?' },
+    });
+
+    expect(mcpGraph.invoke).toHaveBeenCalledWith({ question: 'Qual a receita da Vale?' });
+    expect(resultado.content).toEqual([{ type: 'text', text: 'A receita foi R$ 56,7 bilhões.' }]);
+
+    await cliente.close();
   });
 });
