@@ -83,6 +83,53 @@ describe('GET /api/health', () => {
   });
 });
 
+describe('Rate limiting (G.4)', () => {
+  afterEach(() => {
+    delete process.env.RATE_LIMIT_MAX;
+    delete process.env.RATE_LIMIT_WINDOW;
+  });
+
+  it('devolve 429 em problem+json depois do limite configurado, em /api/chat', async () => {
+    process.env.RATE_LIMIT_MAX = '1';
+    process.env.RATE_LIMIT_WINDOW = '1 minute';
+    const app = build({
+      checkDatabase: async () => true,
+      graph: {
+        async stream() {
+          return (async function* () {})();
+        },
+      },
+    });
+
+    const primeira = await app.inject({
+      method: 'POST',
+      url: '/api/chat',
+      payload: { question: 'x' },
+    });
+    const segunda = await app.inject({
+      method: 'POST',
+      url: '/api/chat',
+      payload: { question: 'x' },
+    });
+
+    expect(primeira.statusCode).toBe(200);
+    expect(segunda.statusCode).toBe(429);
+    expect(segunda.headers['content-type']).toBe('application/problem+json; charset=utf-8');
+    expect(segunda.json()).toMatchObject({ title: 'Limite de requisições excedido', status: 429 });
+  });
+
+  it('não aplica rate limit em /api/health, mesmo com limite baixo configurado', async () => {
+    process.env.RATE_LIMIT_MAX = '1';
+    const app = build({ checkDatabase: async () => true });
+
+    const primeira = await app.inject({ method: 'GET', url: '/api/health' });
+    const segunda = await app.inject({ method: 'GET', url: '/api/health' });
+    const terceira = await app.inject({ method: 'GET', url: '/api/health' });
+
+    expect([primeira.statusCode, segunda.statusCode, terceira.statusCode]).toEqual([200, 200, 200]);
+  });
+});
+
 describe('POST /api/mcp (gateway MCP pro Angular)', () => {
   let app: ReturnType<typeof build> | undefined;
 

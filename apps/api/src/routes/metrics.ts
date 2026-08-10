@@ -12,7 +12,9 @@ export interface MetricsRouteOptions {
 }
 
 const metricsRoute: FastifyPluginAsync<MetricsRouteOptions> = async (app, { registry }) => {
-  app.get('/metrics', async (request, reply) => {
+  // Sem rate limit (G.4): é o endpoint que o Prometheus/Grafana Cloud faz scrape em
+  // intervalo fixo, não algo exposto a abuso de usuário final.
+  app.get('/metrics', { config: { rateLimit: false } }, async (request, reply) => {
     reply.header('Content-Type', registry.contentType);
     return registry.metrics();
   });

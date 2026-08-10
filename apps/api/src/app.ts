@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import rateLimit from '@fastify/rate-limit';
 import {
   buildGraph,
   buscarDocumentosSimilares,
@@ -19,6 +20,7 @@ import type { GraphLike as ChatGraphLike } from './routes/chat.js';
 import metricsRoute from './routes/metrics.js';
 import type { MetricsRegistry } from './routes/metrics.js';
 import { otelHttpMetricsPlugin } from './observability/otel-metrics.js';
+import { criarRateLimitOptions } from './rate-limit.js';
 import { checkDatabase as defaultCheckDatabase } from './db.js';
 import { errorHandler } from './error-handler.js';
 
@@ -59,6 +61,12 @@ export function build({
   // nunca dispararia pra ele. Sem OTEL_EXPORTER_OTLP_ENDPOINT configurado, é um no-op (ver
   // otel-metrics.ts), então isso nunca precisa de branch condicional aqui.
   app.register(otelHttpMetricsPlugin);
+  // Global por padrão (G.4) — /health e /metrics desligam via config: { rateLimit: false }
+  // nas próprias rotas, porque são baratas e batidas com frequência por infra, não usuário
+  // final. RATE_LIMIT_MAX/RATE_LIMIT_WINDOW configuráveis por env var (rate-limit.ts). Estado
+  // em memória por instância do Cloud Run — com mais de uma instância, o limite é por
+  // instância, não global (mesma limitação do budget de tokens abaixo).
+  app.register(rateLimit, criarRateLimitOptions());
 
   const obterGrafo = criarObterGrafo();
 
