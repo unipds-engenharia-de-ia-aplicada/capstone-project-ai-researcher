@@ -1,5 +1,6 @@
 import { ChatVertexAI } from '@langchain/google-vertexai';
 
+import { criarAnswerLlmDemo, criarGradeLlmDemo } from './llm-demo.js';
 import type { AnswerLlmClient } from './nodes/answer.js';
 import type { GradeLlmClient } from './nodes/grade.js';
 
@@ -24,6 +25,7 @@ function criarChatModel(model: string): ChatVertexAI {
 // ChatVertexAI já implementa withStructuredOutput().invoke() nativamente — satisfaz
 // GradeLlmClient sem adaptação.
 export function criarGradeLlm(): GradeLlmClient {
+  if (process.env.DEMO === 'true') return criarGradeLlmDemo();
   return criarChatModel(process.env.MODEL_GRADE ?? 'gemini-3.5-flash-lite');
 }
 
@@ -31,6 +33,7 @@ export function criarGradeLlm(): GradeLlmClient {
 // ChatVertexAI é MessageContent (string | partes complexas) — normaliza aqui, uma vez,
 // em vez de o nó answer ter que lidar com os dois formatos.
 export function criarAnswerLlm(): AnswerLlmClient {
+  if (process.env.DEMO === 'true') return criarAnswerLlmDemo();
   const chatModel = criarChatModel(process.env.MODEL_ANSWER ?? 'gemini-3.6-flash');
 
   return {

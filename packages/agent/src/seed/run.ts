@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 
 import { db, pool } from '../db/client.js';
 import { documentos } from '../db/schema.js';
-import { criarEmbeddings } from '../embeddings.js';
+import { criarEmbeddingsReal } from '../embeddings.js';
 import { emLotes } from './lotes.js';
 import { lerDocumentos } from './read-documentos.js';
 import { paraLinha } from './to-row.js';
@@ -19,7 +19,7 @@ const TAMANHO_LOTE = 10;
 
 export async function semear(dir = DOCUMENTOS_DIR): Promise<number> {
   const items = lerDocumentos(dir);
-  const embeddings = criarEmbeddings();
+  const embeddings = criarEmbeddingsReal();
 
   let indexados = 0;
   for (const lote of emLotes(items, TAMANHO_LOTE)) {

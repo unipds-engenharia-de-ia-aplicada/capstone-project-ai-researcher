@@ -1,4 +1,5 @@
 import { db } from './db/client.js';
+import { criarBuscarDemo } from './db/retrieve-demo.js';
 import { buscarDocumentosSimilares } from './db/retrieve-similar.js';
 import { inserirDocumentoWeb as inserirDocumentoWebNoBanco } from './db/upsert-web-document.js';
 import { criarEmbeddings } from './embeddings.js';
@@ -13,7 +14,13 @@ import { criarBuscarPagina } from './web-search/fixtures.js';
 export function criarGraphDepsPadrao(): GraphDeps {
   return {
     embeddings: criarEmbeddings(),
-    buscar: (embedding, k) => buscarDocumentosSimilares(db, embedding, k),
+    // DEMO=true não toca o Postgres — sem isso, o grafo em modo demo continuaria exigindo
+    // DATABASE_URL só pra devolver um documento fixo (ver db/retrieve-demo.ts). Usado no F.7
+    // (Playwright no CI, sem banco nem Vertex AI disponíveis no runner).
+    buscar:
+      process.env.DEMO === 'true'
+        ? criarBuscarDemo()
+        : (embedding, k) => buscarDocumentosSimilares(db, embedding, k),
     gradeLlm: criarGradeLlm(),
     searchProvider: criarSearchProvider(),
     buscarPagina: criarBuscarPagina(),
