@@ -1,4 +1,4 @@
-import { buildGraph, criarGraphDepsPadrao } from '@hero/agent';
+import { buildGraph, criarGraphDepsPadrao, criarLangfuseCallbacks } from '@hero/agent';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 import { makePerguntarTool, perguntarConfig } from './tools/perguntar.js';
@@ -14,7 +14,7 @@ function criarGraphPadrao(): GraphLike {
   return {
     async invoke(input) {
       grafoReal ??= buildGraph(criarGraphDepsPadrao());
-      return grafoReal.invoke(input);
+      return grafoReal.invoke(input, { callbacks: criarLangfuseCallbacks() });
     },
   };
 }

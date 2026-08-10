@@ -1,6 +1,9 @@
+import { registrarLangfuseTracing } from '@hero/agent';
 import Fastify from 'fastify';
 
 import mcpHttpRoute from './http-route.js';
+
+registrarLangfuseTracing();
 
 const app = Fastify({ logger: true });
 app.register(mcpHttpRoute);

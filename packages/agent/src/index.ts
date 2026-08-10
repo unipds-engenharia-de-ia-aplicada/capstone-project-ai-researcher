@@ -20,3 +20,4 @@ export { criarGradeLlm, criarAnswerLlm } from './llm.js';
 export { buildGraph, MAX_ITERATIONS, ResearchState } from './graph.js';
 export type { GraphDeps } from './graph.js';
 export { criarGraphDepsPadrao } from './graph-deps.js';
+export { registrarLangfuseTracing, criarLangfuseCallbacks } from './observability/langfuse.js';

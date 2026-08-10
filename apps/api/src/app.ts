@@ -4,6 +4,7 @@ import {
   buscarDocumentosSimilares,
   criarEmbeddings,
   criarGraphDepsPadrao,
+  criarLangfuseCallbacks,
   db,
 } from '@hero/agent';
 import type { Buscar, EmbeddingsClient } from '@hero/agent';
@@ -51,8 +52,13 @@ export function build({
   app.register(
     async (api) => {
       api.register(healthRoute, { checkDatabase });
+      // callbacks: criarLangfuseCallbacks() — G.1. Array vazio quando LANGFUSE_PUBLIC_KEY/
+      // LANGFUSE_SECRET_KEY não estão configuradas, então isso nunca precisa de branch
+      // condicional aqui; o trace simplesmente não é enviado.
       api.register(chatRoute, {
-        graph: graph ?? { stream: (input) => obterGrafo().stream(input) },
+        graph: graph ?? {
+          stream: (input) => obterGrafo().stream(input, { callbacks: criarLangfuseCallbacks() }),
+        },
       });
 
       // Gateway MCP pro Angular (e qualquer outro cliente HTTP) — mesmas tools do transporte
@@ -60,7 +66,9 @@ export function build({
       // plugin (ver http-route.ts), então isso vira /api/mcp — sem prefixo extra aqui.
       // Mesmo grafo do /chat: ver comentário de criarObterGrafo.
       api.register(mcpHttpRoute, {
-        graph: mcpGraph ?? { invoke: (input) => obterGrafo().invoke(input) },
+        graph: mcpGraph ?? {
+          invoke: (input) => obterGrafo().invoke(input, { callbacks: criarLangfuseCallbacks() }),
+        },
       });
 
       // Rota de debug: nunca sobe em produção — DEBUG_ROUTES não é setada no Cloud Run.

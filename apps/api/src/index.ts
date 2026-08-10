@@ -1,4 +1,7 @@
+import { registrarLangfuseTracing } from '@hero/agent';
 import { build } from './app.js';
+
+registrarLangfuseTracing();
 
 const app = build();
 
