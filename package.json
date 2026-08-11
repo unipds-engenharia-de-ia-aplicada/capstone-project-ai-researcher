@@ -21,7 +21,8 @@
     "grafana:dashboard": "tsx scripts/grafana-apply-dashboard.ts",
     "grafana:alert": "tsx scripts/grafana-apply-alert.ts",
     "load:test": "tsx scripts/load-test.ts",
-    "rollback": "tsx scripts/rollback.ts"
+    "rollback": "tsx scripts/rollback.ts",
+    "destroy": "tsx scripts/destroy.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
