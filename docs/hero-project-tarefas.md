@@ -120,7 +120,6 @@ Metade do esforço técnico do projeto.
 | E.8 | `packages/mcp-server` — tools com schemas zod | Descrições revisadas; são prompt, não documentação |
 | E.9 | Transporte stdio validado no Claude Desktop | `claude mcp add` e conversa funcionando |
 | E.10 | Transporte Streamable HTTP + gateway para o Angular | Mesmas tools, duas portas |
-| E.11 | CI com testes como *required check* | Merge bloqueado se falhar |
 | E.12 | `capstone:check` itens 4, 5, 10 | Três verificações novas passando |
 
 **~12h** · Tag `v3` · E.4 já entrega o congelamento de fixtures previsto nas práticas de produção.
