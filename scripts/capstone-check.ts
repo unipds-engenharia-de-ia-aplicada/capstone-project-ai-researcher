@@ -1,4 +1,6 @@
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 interface CheckResult {
   numero: number;
@@ -549,6 +551,39 @@ async function checarMetricasCusto(url: string): Promise<CheckResult> {
   }
 }
 
+// Local, não do alvo checado — README.md fica no repo, não em produção. Mesmo espírito de
+// checarSegredosProtegidos(): audita o que está no working tree.
+function checarReadme(): CheckResult {
+  try {
+    const caminho = fileURLToPath(new URL('../README.md', import.meta.url));
+    const conteudo = readFileSync(caminho, 'utf-8');
+    const temArquitetura = /arquitetura/i.test(conteudo);
+    const temDiagrama = conteudo.includes('```mermaid');
+    const ok = temArquitetura && temDiagrama;
+
+    const faltando = [
+      !temArquitetura && 'seção de arquitetura',
+      !temDiagrama && 'diagrama Mermaid',
+    ].filter((x): x is string => Boolean(x));
+
+    return {
+      numero: 11,
+      titulo: 'README com arquitetura',
+      ok,
+      detalhe: ok
+        ? 'seção de arquitetura com diagrama Mermaid presente'
+        : `faltando: ${faltando.join(', ')}`,
+    };
+  } catch (error) {
+    return {
+      numero: 11,
+      titulo: 'README com arquitetura',
+      ok: false,
+      detalhe: `README.md não encontrado (${(error as Error).message})`,
+    };
+  }
+}
+
 function usuarioGithub(): string {
   try {
     return execFileSync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf-8' }).trim();
@@ -578,13 +613,18 @@ function imprimirRelatorio(resultados: CheckResult[]): void {
 
   const aprovados = resultados.filter((r) => r.ok).length;
   console.log('');
-  console.log(`SCORE: ${aprovados}/${resultados.length} (itens 11 e 12 chegam no Bloco H)`);
+  console.log(`SCORE: ${aprovados}/${resultados.length}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 }
 
 async function main() {
   const url = argumentoUrl();
 
+  // Ordem de execução aqui não é a ordem de exibição (o relatório reordena por `numero`
+  // depois) — importa porque a rajada do item 7 estoura o rate limit de propósito. Rodar
+  // checarRajadaEAlerta antes de checarDegradacaoGraciosa/checarGuardrail fazia os dois
+  // (que também batem em /chat) verem 429 por causa da rajada, não por um problema de
+  // verdade — por isso a rajada roda por último entre os checks que usam /chat.
   const resultados = [
     await checarEndpointPublico(url),
     checarDeployAutomatizado(),
@@ -592,11 +632,12 @@ async function main() {
     checarTestesCi(),
     await checarDegradacaoGraciosa(url),
     await checarTracesLangfuse(),
-    await checarRajadaEAlerta(url),
     checarRollbackDisponivel(),
     await checarMetricasCusto(url),
     await checarGuardrail(url),
-  ];
+    await checarRajadaEAlerta(url),
+    checarReadme(),
+  ].sort((a, b) => a.numero - b.numero);
 
   imprimirRelatorio(resultados);
 
