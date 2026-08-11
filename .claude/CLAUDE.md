@@ -106,7 +106,7 @@ G.7 (`capstone:check` itens 6–9, critério "doze verificações completas") ad
 
 `pnpm capstone:check --url https://ai-researcher-capstone.web.app` rodou 10/10 contra produção real depois do G.6/G.7 — os itens 7 (429/alerta) e 8 (rollback) usaram o serviço de verdade, não fake.
 
-Bloco H (empacotamento) está em andamento: H.1, H.2 e H.3 prontos.
+Bloco H (empacotamento) está em andamento: H.1–H.4 prontos.
 
 H.1: `README.md` na raiz (não existia até aqui) com três diagramas Mermaid — infraestrutura, o grafo do agente (RAG corretivo) e o pipeline de deploy canary — validados renderizando com `@mermaid-js/mermaid-cli` antes de commitar. Achado real: um node id `graph` colide com palavra reservada da gramática do Mermaid mesmo dentro de `flowchart TB` (não só `graph TB`) — quebrava o parser com um erro de sintaxe genérico apontando pro texto do label, não pro id. Renomeado pra `agentGraph`.
 
@@ -114,7 +114,20 @@ H.2: `make destroy` (`Makefile` + `scripts/destroy.ts`) remove os recursos GCP d
 
 H.3: item 11 do `capstone:check` (`checarReadme()`) confirma seção de arquitetura + diagrama Mermaid no README. **Item 12 (URL do vídeo) removido do escopo** — do check e do projeto — por decisão do dono: o vídeo ainda não existe. Achado real corrigido: a rajada do item 7 (estoura o rate limit de propósito) rodava antes do item 10 (guardrail, que também bate em `/chat`) — o guardrail via 429 por causa da rajada, não por um problema de verdade. Corrigido separando ordem de execução (rajada por último entre os checks que usam `/chat`) da ordem de exibição (`resultados.sort((a, b) => a.numero - b.numero)` antes de imprimir) — os números do relatório continuam batendo com o checklist de `docs/hero-project-plano.md`, independente da ordem em que cada check de fato rodou. Confirmado **11/11** contra produção real depois do fix.
 
-**H.4 e H.5 não iniciados.** H.4 (branch `starter` derivado de uma tag `v1`) esbarra em uma lacuna real: nenhuma tag Git foi criada em nenhum bloco anterior deste repositório (`git tag -l` vazio) — o plano original previa tag por fase (`v1`...`v6`), mas o trabalho até aqui rodou inteiro direto em `main`. Fazer o H.4 direito primeiro precisa decidir com o dono do projeto qual commit marca o fim do Bloco C (walking skeleton + deploy zero) pra virar a tag `v1` retroativamente, ou se o branch `starter` parte de outro ponto. H.5 (validação em conta GCP limpa, do clone ao deploy, por alguém que não escreveu o código) não pode ser feito por mim — não tenho uma segunda conta GCP nem sou "alguém que não escreveu o código". Por decisão do dono do projeto, essa validação fica pra ele rodar depois; o que dá pra fazer daqui (README claro, `infra/README.md` como roteiro, `capstone:check` confirmando o deploy real) já está pronto pra sustentar essa validação quando ela acontecer.
+**H.4 pronto.** Nenhuma tag Git tinha sido criada em nenhum bloco anterior deste repositório (`git tag -l` vazio até aqui) — o plano original previa tag por fase (`v1`...`v6`), mas o trabalho rodou inteiro direto em `main`. Tageado retroativamente, verificando pra cada bloco se o commit que *diz* "fechado" no texto é de fato o último antes do primeiro commit do bloco seguinte (nem sempre é — ver achado abaixo):
+
+- `v1` → `95c31b1` (Bloco C)
+- `v2` → `3128650` (Bloco D)
+- `v3` → `eb90d86` (Bloco E)
+- `v4` → `41c28c8` (Bloco F)
+- `v5` → `1d4c07c` (Bloco G)
+- `v6` ainda não existe — o Bloco H não está fechado (H.5 pendente); tagear agora seria prematuro, a tag marca bloco *completo*.
+
+**Achado real:** `v1` não é o commit `1ae7a00` ("Marca Bloco C como fechado no CLAUDE.md") — é `95c31b1` ("Libera acesso público ao Cloud Run e confirma capstone:check 3/3"), quatro commits depois. O CLAUDE.md foi marcado como fechado *antes* da estabilização real do primeiro deploy (três bugs que só apareceram rodando contra produção de verdade, documentados em `infra/README.md`). Os outros quatro blocos (D, E, F, G) não tinham esse desalinhamento — o commit "fechado" já era o último antes do bloco seguinte começar.
+
+Branch `starter` criada em `v1` e publicada (`git branch starter v1 && git push origin starter`) — é o que o aluno clona pra começar o curso: walking skeleton + deploy zero funcionando, sem grafo do agente, frontend ou observabilidade. `capstone:check` já estava completo (11/11) desde o H.3, contra o estado atual de `main` — não precisa rodar contra a `starter`, que só tem os itens 1-3 implementados (é o estado do C).
+
+**H.5 não iniciado.** Validação em conta GCP limpa, do clone ao deploy, por alguém que não escreveu o código — não pode ser feito por mim: não tenho uma segunda conta GCP nem sou "alguém que não escreveu o código". Por decisão do dono do projeto, essa validação fica pra ele rodar depois; o que dá pra fazer daqui (README claro, `infra/README.md` como roteiro, `capstone:check` confirmando o deploy real, branch `starter` pronta) já está pronto pra sustentar essa validação quando ela acontecer.
 
 O restante deste arquivo — Stack, Estrutura, Comandos — descreve o **estado-alvo** completo do projeto, não necessariamente o estado atual em todo detalhe.
 
