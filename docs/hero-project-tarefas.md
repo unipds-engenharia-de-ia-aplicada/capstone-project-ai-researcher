@@ -167,7 +167,7 @@ Metade do esforço técnico do projeto.
 | H.2 | `make destroy` | Remove todos os recursos, Cloud SQL primeiro |
 | H.3 | `capstone:check` itens 11, 12 + formatação final da saída | Bloco pronto para colar no Discord |
 | H.4 | Branch `starter` derivado da `v1` + `capstone:check` completo | É o que o aluno clona |
-| H.5 | **Validação em conta GCP limpa**, do clone ao deploy | Executado por alguém que não escreveu o código |
+| H.5 | **Validação em conta GCP limpa**, do clone ao deploy — ✅ concluído (destruição + reconstrução real de `ai-researcher-capstone`, ver `.claude/CLAUDE.md`) | Executado por alguém que não escreveu o código |
 
 **~6h** · Tag `v6`
 
