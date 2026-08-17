@@ -12,7 +12,7 @@
     "patrimonioLiquido": 16853240000,
     "caixaOperacional": -245577000,
     "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2025.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
     "receitaMesmoTrimestreAnoAnterior": 10881740000,
     "paragraph": "No 2T25, a Cia Siderúrgica Nacional reportou receita líquida de R$ 10,7 bilhões, queda de 1,7% frente ao 2T24. O lucro líquido foi de R$ -130,4 milhões, com margem líquida de -1,2%. O caixa gerado nas operações somou R$ -245,6 milhões."
   },
@@ -29,25 +29,9 @@
     "patrimonioLiquido": 17355367000,
     "caixaOperacional": 392503000,
     "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2025.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
     "receitaMesmoTrimestreAnoAnterior": 11066589000,
     "paragraph": "No 3T25, a Cia Siderúrgica Nacional reportou receita líquida de R$ 11,8 bilhões, alta de 6,6% frente ao 3T24 e alta de 10,3% frente ao 2T25. O lucro líquido foi de R$ 76,4 milhões, com margem líquida de 0,6%. O caixa gerado nas operações somou R$ 392,5 milhões."
-  },
-  {
-    "ticker": "CSNA",
-    "companyName": "Cia Siderúrgica Nacional",
-    "setor": "Metalurgia e Siderurgia",
-    "period": "4T25",
-    "periodEnd": "2025-12-31",
-    "receitaLiquida": 11403163000,
-    "lucroBruto": 3668133000,
-    "lucroLiquido": -721215000,
-    "ativoTotal": 100575369000,
-    "patrimonioLiquido": 15736350000,
-    "caixaOperacional": 33490000,
-    "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/dfp_cia_aberta_2025.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
-    "paragraph": "No 4T25, a Cia Siderúrgica Nacional reportou receita líquida de R$ 11,4 bilhões, queda de 3,3% frente ao 3T25. O lucro líquido foi de R$ -721,2 milhões, com margem líquida de -6,3%. O caixa gerado nas operações somou R$ 33,5 milhões."
   },
   {
     "ticker": "CSNA",
@@ -62,8 +46,25 @@
     "patrimonioLiquido": 15894283000,
     "caixaOperacional": -776501000,
     "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2026.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
     "receitaMesmoTrimestreAnoAnterior": 10907629000,
-    "paragraph": "No 1T26, a Cia Siderúrgica Nacional reportou receita líquida de R$ 10,6 bilhões, queda de 2,8% frente ao 1T25 e queda de 7,0% frente ao 4T25. O lucro líquido foi de R$ -555,0 milhões, com margem líquida de -5,2%. O caixa gerado nas operações somou R$ -776,5 milhões."
+    "paragraph": "No 1T26, a Cia Siderúrgica Nacional reportou receita líquida de R$ 10,6 bilhões, queda de 2,8% frente ao 1T25 e queda de 10,1% frente ao 3T25. O lucro líquido foi de R$ -555,0 milhões, com margem líquida de -5,2%. O caixa gerado nas operações somou R$ -776,5 milhões."
+  },
+  {
+    "ticker": "CSNA",
+    "companyName": "Cia Siderúrgica Nacional",
+    "setor": "Metalurgia e Siderurgia",
+    "period": "2T26",
+    "periodEnd": "2026-06-30",
+    "receitaLiquida": 11306169000,
+    "lucroBruto": 2930923000,
+    "lucroLiquido": -773058000,
+    "ativoTotal": 100602032000,
+    "patrimonioLiquido": 15240376000,
+    "caixaOperacional": 105508000,
+    "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2026.zip",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
+    "receitaMesmoTrimestreAnoAnterior": 10693286000,
+    "paragraph": "No 2T26, a Cia Siderúrgica Nacional reportou receita líquida de R$ 11,3 bilhões, alta de 5,7% frente ao 2T25 e alta de 6,6% frente ao 1T26. O lucro líquido foi de R$ -773,1 milhões, com margem líquida de -6,8%. O caixa gerado nas operações somou R$ 105,5 milhões."
   }
 ]

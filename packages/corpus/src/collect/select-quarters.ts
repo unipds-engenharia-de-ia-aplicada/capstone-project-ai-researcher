@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { baixarEDescompactar } from './fetch-cvm.js';
+import { ArquivoCvmNaoPublicado, baixarEDescompactar } from './fetch-cvm.js';
 import { parseCsvCvm } from './parse-csv.js';
 import { nomeArquivoCsv, urlZipCvm, type TipoDocumento } from './cvm-urls.js';
 import type { Empresa, LinhaCvm, PeriodoColetado, ValorConta } from '../types.js';
@@ -63,13 +63,34 @@ function agruparPorEmpresa(linhas: LinhaCvm[]): Map<string, LinhaCvm[]> {
   return porEmpresa;
 }
 
+const DEMONSTRATIVOS_VAZIOS: DemonstrativosAno = {
+  bpaCon: new Map(),
+  bpaInd: new Map(),
+  bppCon: new Map(),
+  bppInd: new Map(),
+  dreCon: new Map(),
+  dreInd: new Map(),
+  dfcCon: new Map(),
+  dfcInd: new Map(),
+};
+
 function carregarDemonstrativos(tipo: TipoDocumento, ano: number): Promise<DemonstrativosAno> {
   const chave = `${tipo}_${ano}`;
   const existente = cacheDemonstrativos.get(chave);
   if (existente) return existente;
 
   const promessa = (async () => {
-    const dir = await baixarEDescompactar(tipo, ano);
+    let dir: string;
+    try {
+      dir = await baixarEDescompactar(tipo, ano);
+    } catch (erro) {
+      if (erro instanceof ArquivoCvmNaoPublicado) {
+        console.warn(`${tipo} ${ano} ignorado: ${erro.message}`);
+        return DEMONSTRATIVOS_VAZIOS;
+      }
+      throw erro;
+    }
+
     const carregar = (demonstrativo: string) =>
       agruparPorEmpresa(parseCsvCvm(path.join(dir, nomeArquivoCsv(tipo, demonstrativo, ano))));
 
