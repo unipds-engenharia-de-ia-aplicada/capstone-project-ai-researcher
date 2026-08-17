@@ -12,7 +12,7 @@
     "patrimonioLiquido": 5599000000,
     "caixaOperacional": 986000000,
     "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2025.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
     "receitaMesmoTrimestreAnoAnterior": 17871000000,
     "paragraph": "No 2T25, a Sendas Distribuidora S.A. reportou receita líquida de R$ 19,0 bilhões, alta de 6,3% frente ao 2T24. O lucro líquido foi de R$ 219,0 milhões, com margem líquida de 1,2%. O caixa gerado nas operações somou R$ 986,0 milhões."
   },
@@ -29,25 +29,9 @@
     "patrimonioLiquido": 5720000000,
     "caixaOperacional": 1578000000,
     "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2025.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
     "receitaMesmoTrimestreAnoAnterior": 18563000000,
     "paragraph": "No 3T25, a Sendas Distribuidora S.A. reportou receita líquida de R$ 19,0 bilhões, alta de 2,1% frente ao 3T24 e queda de 0,2% frente ao 2T25. O lucro líquido foi de R$ 152,0 milhões, com margem líquida de 0,8%. O caixa gerado nas operações somou R$ 1,6 bilhões."
-  },
-  {
-    "ticker": "ASAI",
-    "companyName": "Sendas Distribuidora S.A.",
-    "setor": "Comércio (Atacado e Varejo)",
-    "period": "4T25",
-    "periodEnd": "2025-12-31",
-    "receitaLiquida": 20797000000,
-    "lucroBruto": 3614000000,
-    "lucroLiquido": 9000000,
-    "ativoTotal": 47825000000,
-    "patrimonioLiquido": 5554000000,
-    "caixaOperacional": 2689000000,
-    "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/DFP/DADOS/dfp_cia_aberta_2025.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
-    "paragraph": "No 4T25, a Sendas Distribuidora S.A. reportou receita líquida de R$ 20,8 bilhões, alta de 9,7% frente ao 3T25. O lucro líquido foi de R$ 9,0 milhões, com margem líquida de 0,0%. O caixa gerado nas operações somou R$ 2,7 bilhões."
   },
   {
     "ticker": "ASAI",
@@ -62,8 +46,25 @@
     "patrimonioLiquido": 5887000000,
     "caixaOperacional": -401000000,
     "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2026.zip",
-    "fetchedAt": "2026-08-08T02:19:40.760Z",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
     "receitaMesmoTrimestreAnoAnterior": 18552000000,
-    "paragraph": "No 1T26, a Sendas Distribuidora S.A. reportou receita líquida de R$ 18,6 bilhões, alta de 0,5% frente ao 1T25 e queda de 10,4% frente ao 4T25. O lucro líquido foi de R$ 320,0 milhões, com margem líquida de 1,7%. O caixa gerado nas operações somou R$ -401,0 milhões."
+    "paragraph": "No 1T26, a Sendas Distribuidora S.A. reportou receita líquida de R$ 18,6 bilhões, alta de 0,5% frente ao 1T25 e queda de 1,7% frente ao 3T25. O lucro líquido foi de R$ 320,0 milhões, com margem líquida de 1,7%. O caixa gerado nas operações somou R$ -401,0 milhões."
+  },
+  {
+    "ticker": "ASAI",
+    "companyName": "Sendas Distribuidora S.A.",
+    "setor": "Comércio (Atacado e Varejo)",
+    "period": "2T26",
+    "periodEnd": "2026-06-30",
+    "receitaLiquida": 19175000000,
+    "lucroBruto": 3683000000,
+    "lucroLiquido": 484000000,
+    "ativoTotal": 46631000000,
+    "patrimonioLiquido": 6346000000,
+    "caixaOperacional": 1493000000,
+    "sourceUrl": "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/ITR/DADOS/itr_cia_aberta_2026.zip",
+    "fetchedAt": "2026-08-17T02:38:19.026Z",
+    "receitaMesmoTrimestreAnoAnterior": 19002000000,
+    "paragraph": "No 2T26, a Sendas Distribuidora S.A. reportou receita líquida de R$ 19,2 bilhões, alta de 0,9% frente ao 2T25 e alta de 2,9% frente ao 1T26. O lucro líquido foi de R$ 484,0 milhões, com margem líquida de 2,5%. O caixa gerado nas operações somou R$ 1,5 bilhões."
   }
 ]
