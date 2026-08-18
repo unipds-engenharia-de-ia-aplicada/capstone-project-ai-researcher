@@ -6,6 +6,7 @@ import { criarEmbeddings } from './embeddings.js';
 describe('criarEmbeddings', () => {
   afterEach(() => {
     delete process.env.DEMO;
+    delete process.env.GOOGLE_CLOUD_PROJECT_ID;
   });
 
   it('com DEMO=true, devolve um vetor de zeros do tamanho certo, sem chamar a Vertex AI', async () => {
@@ -21,7 +22,15 @@ describe('criarEmbeddings', () => {
 
   it('sem DEMO, devolve o cliente real da Vertex AI', () => {
     delete process.env.DEMO;
+    process.env.GOOGLE_CLOUD_PROJECT_ID = 'projeto-de-teste';
 
     expect(criarEmbeddings()).toBeInstanceOf(VertexAIEmbeddings);
+  });
+
+  it('sem GOOGLE_CLOUD_PROJECT_ID, recusa criar o cliente real em vez de deixar a Vertex AI falhar com erro obscuro', () => {
+    delete process.env.DEMO;
+    delete process.env.GOOGLE_CLOUD_PROJECT_ID;
+
+    expect(() => criarEmbeddings()).toThrow('GOOGLE_CLOUD_PROJECT_ID');
   });
 });

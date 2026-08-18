@@ -4,9 +4,14 @@ import { criarAnswerLlmDemo, criarGradeLlmDemo } from './llm-demo.js';
 import type { AnswerLlmClient } from './nodes/answer.js';
 import type { GradeLlmClient } from './nodes/grade.js';
 
-const PROJECT_ID = 'ai-researcher-capstone';
-
 function criarChatModel(model: string): ChatVertexAI {
+  const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+  if (!projectId) {
+    throw new Error(
+      'GOOGLE_CLOUD_PROJECT_ID não configurada — necessária pra autenticar na Vertex AI. Ver infra/README.md.',
+    );
+  }
+
   return new ChatVertexAI({
     model,
     // gemini-3.5-flash-lite e gemini-3.6-flash só respondem em "global" nesse projeto —
@@ -18,7 +23,7 @@ function criarChatModel(model: string): ChatVertexAI {
     // Mesmo motivo do embeddings.ts: GOOGLE_API_KEY no ambiente quebra a autenticação da
     // Vertex AI, que só aceita OAuth2/ADC. Ver infra/README.md.
     apiKey: '',
-    authOptions: { projectId: PROJECT_ID },
+    authOptions: { projectId },
   });
 }
 

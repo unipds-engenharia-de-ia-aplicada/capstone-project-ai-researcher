@@ -9,7 +9,14 @@ import { execFileSync } from 'node:child_process';
 
 const SERVICE = 'ai-researcher-api';
 const REGION = 'us-central1';
-const PROJECT_ID = 'ai-researcher-capstone';
+
+// Mesma variável usada pela aplicação e por deploy.yml — cada aluno roda isso contra o
+// próprio projeto GCP.
+const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
+if (!PROJECT_ID) {
+  console.error('GOOGLE_CLOUD_PROJECT_ID não configurada. Ver infra/README.md.');
+  process.exit(1);
+}
 
 interface Revision {
   metadata: { name: string; creationTimestamp: string };

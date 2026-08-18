@@ -8,8 +8,16 @@ import { createInterface } from 'node:readline/promises';
 // Uso: make destroy  (chama este script — ver Makefile)
 //
 // Exige digitar o PROJECT_ID de volta pra confirmar. Sem --yes, nenhum comando roda.
+//
+// Lê o projeto de GOOGLE_CLOUD_PROJECT_ID (mesma variável usada pela aplicação e por
+// deploy.yml) em vez de um valor fixo — cada aluno roda isso contra o próprio projeto GCP.
 
-const PROJECT_ID = 'ai-researcher-capstone';
+const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
+if (!PROJECT_ID) {
+  console.error('GOOGLE_CLOUD_PROJECT_ID não configurada. Ver infra/README.md.');
+  process.exit(1);
+}
+
 const REGION = 'us-central1';
 const CLOUD_SQL_INSTANCE = 'ai-researcher-db';
 const CLOUD_RUN_SERVICE = 'ai-researcher-api';

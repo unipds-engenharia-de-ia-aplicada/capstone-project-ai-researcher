@@ -479,9 +479,20 @@ interface RevisaoCloudRun {
 }
 
 // gcloud, não a API REST do Cloud Run — mesmo padrão de scripts/rollback.ts, que faz a mesma
-// consulta pra decidir o alvo do rollback. Serviço/região/projeto fixos, como em deploy.yml:
-// este script audita especificamente este projeto, não é um template genérico.
+// consulta pra decidir o alvo do rollback. Serviço/região fixos (convenção do projeto, não
+// específicos de conta); o projeto vem de GOOGLE_CLOUD_PROJECT_ID, igual à aplicação e a
+// scripts/rollback.ts — não hardcoded, senão o check nunca aponta pra conta do aluno.
 function checarRollbackDisponivel(): CheckResult {
+  const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+  if (!projectId) {
+    return {
+      numero: 8,
+      titulo: 'Rollback disponível',
+      ok: false,
+      detalhe: 'GOOGLE_CLOUD_PROJECT_ID ausente no ambiente',
+    };
+  }
+
   try {
     const saida = execFileSync(
       'gcloud',
@@ -491,7 +502,7 @@ function checarRollbackDisponivel(): CheckResult {
         'list',
         '--service=ai-researcher-api',
         '--region=us-central1',
-        '--project=ai-researcher-capstone',
+        `--project=${projectId}`,
         '--format=json',
       ],
       { encoding: 'utf-8' },
