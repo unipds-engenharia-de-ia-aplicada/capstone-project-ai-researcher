@@ -40,7 +40,7 @@ gh variable set GCP_WIF_PROVIDER --body "projects/<numero-do-projeto>/locations/
 gh variable set GCP_DEPLOY_SERVICE_ACCOUNT --body "github-actions-deployer@<seu-project-id>.iam.gserviceaccount.com"
 ```
 
-Note que o caminho do provider usa o **número** do projeto (ex.: `473939301392`), não o project id — são coisas diferentes; `gcloud projects describe <seu-project-id> --format="value(projectNumber)"` devolve o número.
+Note que o caminho do provider usa o **número** do projeto (ex.: `123456789012`, um placeholder — o seu vai ser diferente), não o project id — são coisas diferentes; `gcloud projects describe <seu-project-id> --format="value(projectNumber)"` devolve o número.
 
 A aplicação em si (`packages/agent/src/llm.ts`, `embeddings.ts`) lê o projeto de `GOOGLE_CLOUD_PROJECT_ID` em runtime — não de `GOOGLE_CLOUD_PROJECT` (ambígua: pode já estar setada por outro projeto Gemini/AI Studio na sua máquina). `deploy.yml` injeta essa env var no Cloud Run automaticamente a partir de `GCP_PROJECT_ID`; localmente, exporte `GOOGLE_CLOUD_PROJECT_ID` no seu `~/.zshrc`, mesmo padrão de `SERPER_API_KEY`/`LANGFUSE_PUBLIC_KEY`. Os scripts `pnpm rollback`, `pnpm destroy` e `pnpm capstone:check` (item 8) também leem essa mesma variável.
 
@@ -53,7 +53,7 @@ Primeiro deploy real (`v1`) rodou verde ponta a ponta em `2026-08-08`: `apps/api
 Três problemas só apareceram rodando o workflow de verdade contra produção (não em teoria) — os três documentados nos commits do Bloco C:
 
 1. O bucket de staging padrão do Cloud Build (`gs://ai-researcher-capstone_cloudbuild`, criado com ACL legada na primeira vez que rodei `gcloud builds submit` manualmente no A.2) recusava acesso da service account de deploy mesmo depois de IAM binding no bucket e `serviceusage.serviceUsageConsumer` no projeto. Resolvido trocando a etapa de build por `docker build` + `docker push` direto no runner do GitHub Actions, sem depender do Cloud Build.
-2. A service account **de execução** do Cloud Run (`473939301392-compute@developer.gserviceaccount.com`, a padrão do Compute — diferente da service account *de deploy*) precisou de `secretmanager.secretAccessor` no secret `database-url` pra conseguir ler o próprio segredo em runtime.
+2. A service account **de execução** do Cloud Run (`<numero-do-projeto>-compute@developer.gserviceaccount.com`, a padrão do Compute — diferente da service account *de deploy*) precisou de `secretmanager.secretAccessor` no secret `database-url` pra conseguir ler o próprio segredo em runtime.
 3. `pnpm --filter @hero/web build` no job de deploy pulava o Turborepo e nunca buildava `@hero/contracts` primeiro — corrigido usando `pnpm turbo run build --filter=@hero/web`, que respeita `dependsOn: ["^build"]`.
 
 **Cloud Run público:** liberado via `gcloud run services add-iam-policy-binding ai-researcher-api --region=us-central1 --member=allUsers --role=roles/run.invoker` em `2026-08-08`, depois de confirmar explicitamente — é exposição real pra internet inteira, não algo pra seguir o plano sem checar. Risco aceito nesse estágio porque a única rota é `/api/health` (barata, sem custo de LLM); rate limiting e alerta de abuso entram no Bloco G, antes do `/chat` (Bloco D) trazer custo de verdade por requisição. `pnpm capstone:check --url https://ai-researcher-capstone.web.app` confirma 3/3.
