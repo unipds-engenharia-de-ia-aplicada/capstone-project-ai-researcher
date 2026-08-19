@@ -1,6 +1,7 @@
-import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import type { HealthResponse } from '@hero/contracts';
 import { App } from './app';
 
 describe('App', () => {
@@ -15,23 +16,17 @@ describe('App', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    expect(fixture.componentInstance).toBeTruthy();
-    httpMock.expectOne('/api/health').flush({ status: 'ok', database: 'ok' });
-  });
-
-  it('renderiza o status vindo de /api/health, sem tocar rede de verdade', async () => {
+  it('mostra status e database quando /api/health responde ok', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    httpMock.expectOne('/api/health').flush({ status: 'ok', database: 'ok' });
+    const response: HealthResponse = { status: 'ok', database: 'ok' };
+    httpMock.expectOne('/api/health').flush(response);
+
     await fixture.whenStable();
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('status: ok');
-    expect(compiled.textContent).toContain('database: ok');
+    expect(compiled.querySelector('p')?.textContent).toContain('status: ok · database: ok');
   });
 });
